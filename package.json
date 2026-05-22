@@ -1,0 +1,18 @@
+{
+  "name": "scheduler-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "日程规划 PWA App - 日历/任务/番茄钟/统计",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node local-server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "pg": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

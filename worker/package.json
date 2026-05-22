@@ -1,0 +1,19 @@
+{
+  "name": "scheduler-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create scheduler-db",
+    "db:migrate": "wrangler d1 execute scheduler-db --file=./src/schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.114.17"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
