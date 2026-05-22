@@ -191,6 +191,9 @@ async function 应用初始化() {
     await 初始化Supabase();
   } catch (e) {
     console.error('Supabase初始化失败:', e);
+    const 错误 = document.getElementById('登录错误信息');
+    if (错误) 错误.textContent = e.message || '服务加载失败，请检查网络后刷新页面';
+    return; // 初始化失败就不继续
   }
 
   // 从缓存恢复

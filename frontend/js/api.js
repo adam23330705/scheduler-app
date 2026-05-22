@@ -10,22 +10,48 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // 加载 Supabase JS SDK
 let supabase = null;
 
+async function 加载脚本(url, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('加载超时')), timeout);
+    const script = document.createElement('script');
+    script.src = url;
+    script.onload = () => { clearTimeout(timer); resolve(); };
+    script.onerror = () => { clearTimeout(timer); reject(new Error('加载失败')); };
+    document.head.appendChild(script);
+  });
+}
+
 async function 初始化Supabase() {
   if (supabase) return supabase;
-  
-  // 动态加载 Supabase JS SDK
-  if (!window.supabase) {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-      script.onload = resolve;
-      script.onerror = () => reject(new Error('Supabase SDK加载失败'));
-      document.head.appendChild(script);
-    });
+
+  // 多个CDN源，按国内优先级排列
+  const CDN列表 = [
+    'https://cdn.jsdmirror.com/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+    'https://cdn.onmicrosoft.cn/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+  ];
+
+  // 如果window.supabase已经存在（比如被其他方式加载），直接用
+  if (!window.supabase || !window.supabase.createClient) {
+    let 加载成功 = false;
+    for (const cdn of CDN列表) {
+      try {
+        await 加载脚本(cdn, 8000);
+        if (window.supabase && window.supabase.createClient) {
+          加载成功 = true;
+          break;
+        }
+      } catch (e) {
+        console.warn(`CDN加载失败: ${cdn}`, e.message);
+      }
+    }
+    if (!加载成功) {
+      throw new Error('网络连接失败，无法加载服务，请检查网络后刷新页面');
+    }
   }
-  
+
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
+
   // 监听认证状态变化
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
@@ -35,7 +61,7 @@ async function 初始化Supabase() {
       document.getElementById('页面-登录').style.display = 'flex';
     }
   });
-  
+
   return supabase;
 }
 
@@ -44,10 +70,20 @@ function 获取当前用户() {
   return supabase?.auth.getUser();
 }
 
-// 获取当前用户ID
-function 获取用户ID() {
-  const session = supabase?.auth.session();
+// 获取当前用户ID（异步，兼容Supabase JS v2）
+async function 获取用户ID异步() {
+  if (!supabase) return null;
+  const { data: { session } } = await supabase.auth.getSession();
   return session?.user?.id || null;
+}
+
+// 同步获取用户ID（从缓存，用于非关键场景）
+function 获取用户ID() {
+  const 缓存 = localStorage.getItem(存储键.用户信息);
+  if (缓存) {
+    try { return JSON.parse(缓存).id; } catch {}
+  }
+  return null;
 }
 
 // ===== 用户认证 =====
@@ -96,7 +132,7 @@ const 用户API = {
 const 任务API = {
   async 获取列表(参数 = {}) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     let query = supabase.from('tasks').select('*').eq('user_id', userId);
@@ -124,7 +160,7 @@ const 任务API = {
 
   async 创建(任务数据) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     const id = 任务数据.id || 生成ID();
@@ -147,7 +183,7 @@ const 任务API = {
 
   async 更新(任务ID, 更新数据) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     
     const 更新字段 = {
       title: 更新数据.title,
@@ -168,7 +204,7 @@ const 任务API = {
 
   async 删除(任务ID) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     
     const { error } = await supabase.from('tasks').delete().eq('id', 任务ID).eq('user_id', userId);
     if (error) throw new Error(error.message);
@@ -177,7 +213,7 @@ const 任务API = {
 
   async 标记完成(任务ID, 是否完成) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     
     const { error } = await supabase.from('tasks').update({
       completed: 是否完成,
@@ -194,7 +230,7 @@ const 任务API = {
 const 番茄API = {
   async 记录完成(记录数据) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     const id = 生成ID();
@@ -212,7 +248,7 @@ const 番茄API = {
 
   async 获取统计(日期) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     const { data, error } = await supabase.from('pomodoro_records')
@@ -231,7 +267,7 @@ const 番茄API = {
 const 标签API = {
   async 获取列表() {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     const { data, error } = await supabase.from('tags')
@@ -245,7 +281,7 @@ const 标签API = {
 
   async 创建(标签名, 颜色) {
     await 初始化Supabase();
-    const userId = 获取用户ID();
+    const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
     const id = 生成ID();
