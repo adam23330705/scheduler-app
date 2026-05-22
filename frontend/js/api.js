@@ -10,44 +10,18 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // 加载 Supabase JS SDK
 let supabase = null;
 
-async function 加载脚本(url, timeout = 10000) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('加载超时')), timeout);
-    const script = document.createElement('script');
-    script.src = url;
-    script.onload = () => { clearTimeout(timer); resolve(); };
-    script.onerror = () => { clearTimeout(timer); reject(new Error('加载失败')); };
-    document.head.appendChild(script);
-  });
-}
-
 async function 初始化Supabase() {
   if (supabase) return supabase;
 
-  // 多个CDN源，按国内优先级排列
-  const CDN列表 = [
-    'https://cdn.jsdmirror.com/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
-    'https://cdn.onmicrosoft.cn/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
-  ];
+  // 等待 HTML 中的 <script> 标签加载完 SDK
+  let 等待次数 = 0;
+  while ((!window.supabase || !window.supabase.createClient) && 等待次数 < 30) {
+    await new Promise(r => setTimeout(r, 200));
+    等待次数++;
+  }
 
-  // 如果window.supabase已经存在（比如被其他方式加载），直接用
   if (!window.supabase || !window.supabase.createClient) {
-    let 加载成功 = false;
-    for (const cdn of CDN列表) {
-      try {
-        await 加载脚本(cdn, 8000);
-        if (window.supabase && window.supabase.createClient) {
-          加载成功 = true;
-          break;
-        }
-      } catch (e) {
-        console.warn(`CDN加载失败: ${cdn}`, e.message);
-      }
-    }
-    if (!加载成功) {
-      throw new Error('网络连接失败，无法加载服务，请检查网络后刷新页面');
-    }
+    throw new Error('网络连接失败，无法加载服务，请检查网络后刷新页面');
   }
 
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

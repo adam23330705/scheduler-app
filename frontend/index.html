@@ -250,6 +250,9 @@
   <!-- Toast提示 -->
   <div id="toast提示" class="toast"></div>
 
+  <!-- Supabase JS SDK（国内CDN优先，自动降级） -->
+  <script>var _supabaseCdns=['https://cdn.jsdmirror.com/npm/@supabase/supabase-js@2','https://cdn.onmicrosoft.cn/npm/@supabase/supabase-js@2','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];var _supabaseIdx=0;function _loadSupabaseSdk(){var s=document.createElement('script');s.src=_supabaseCdns[_supabaseIdx];s.onload=function(){if(window.supabase&&window.supabase.createClient){console.log('Supabase SDK loaded from:',_supabaseCdns[_supabaseIdx])}else{_tryNextCdn()}};s.onerror=function(){_tryNextCdn()};document.head.appendChild(s)}function _tryNextCdn(){_supabaseIdx++;if(_supabaseIdx<_supabaseCdns.length){console.warn('CDN failed, trying:',_supabaseCdns[_supabaseIdx]);_loadSupabaseSdk()}else{console.error('All Supabase CDN sources failed');var e=document.getElementById('登录错误信息');if(e)e.textContent='网络连接失败，无法加载服务，请检查网络后刷新页面'}}_loadSupabaseSdk()</script>
+
   <!-- 脚本 -->
   <script src="./js/api.js"></script>
   <script src="./js/store.js"></script>
