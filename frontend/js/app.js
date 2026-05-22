@@ -100,7 +100,7 @@ async function 执行登出() {
   if (!confirm('确定要退出登录吗？')) return;
   
   try {
-    await supabase?.auth.signOut();
+    await supabaseClient?.auth.signOut();
   } catch {}
   
   应用状态.用户 = null;
@@ -204,7 +204,7 @@ async function 应用初始化() {
 
   // 检查登录状态 - 通过Supabase session
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
       const userId = session.user.id;
       const username = session.user.user_metadata?.username || '';

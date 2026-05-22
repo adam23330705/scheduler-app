@@ -7,11 +7,11 @@
 const SUPABASE_URL = 'https://mpgepjjswopzuopssrvq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZ2Vwampzd29wenVvcHNzcnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTE0OTEsImV4cCI6MjA5NTAyNzQ5MX0._ErJLmNgQBUOYupWo71GuRwr-B4run1ir7bsY7Q-YnA';
 
-// 加载 Supabase JS SDK
-let supabase = null;
+// Supabase 客户端实例（变量名避开SDK全局的 window.supabase）
+let supabaseClient = null;
 
 async function 初始化Supabase() {
-  if (supabase) return supabase;
+  if (supabaseClient) return supabaseClient;
 
   // 等待 HTML 中的 <script> 标签加载完 SDK
   let 等待次数 = 0;
@@ -24,10 +24,10 @@ async function 初始化Supabase() {
     throw new Error('网络连接失败，无法加载服务，请检查网络后刷新页面');
   }
 
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // 监听认证状态变化
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       应用状态.用户 = null;
       localStorage.removeItem(存储键.用户信息);
@@ -36,18 +36,18 @@ async function 初始化Supabase() {
     }
   });
 
-  return supabase;
+  return supabaseClient;
 }
 
 // 获取当前用户
 function 获取当前用户() {
-  return supabase?.auth.getUser();
+  return supabaseClient?.auth.getUser();
 }
 
 // 获取当前用户ID（异步，兼容Supabase JS v2）
 async function 获取用户ID异步() {
-  if (!supabase) return null;
-  const { data: { session } } = await supabase.auth.getSession();
+  if (!supabaseClient) return null;
+  const { data: { session } } = await supabaseClient.auth.getSession();
   return session?.user?.id || null;
 }
 
@@ -66,7 +66,7 @@ const 用户API = {
     await 初始化Supabase();
     // Supabase Auth 需要 email，我们用 用户名@scheduler.app 作为虚拟邮箱
     const email = `${用户名}@scheduler.app`;
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password: 密码,
       options: {
@@ -85,7 +85,7 @@ const 用户API = {
   async 登录(用户名, 密码) {
     await 初始化Supabase();
     const email = `${用户名}@scheduler.app`;
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: 密码 });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: 密码 });
     if (error) throw new Error(error.message === 'Invalid login credentials' ? '用户名或密码错误' : error.message);
     
     return {
@@ -96,7 +96,7 @@ const 用户API = {
 
   async 获取信息() {
     await 初始化Supabase();
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
     if (error) throw new Error('未登录或token已过期');
     return { user: { id: user.id, username: user.user_metadata?.username || '' } };
   }
@@ -109,7 +109,7 @@ const 任务API = {
     const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
-    let query = supabase.from('tasks').select('*').eq('user_id', userId);
+    let query = supabaseClient.from('tasks').select('*').eq('user_id', userId);
     
     if (参数.date) {
       const 日期 = 参数.date;
@@ -138,7 +138,7 @@ const 任务API = {
     if (!userId) throw new Error('未登录');
     
     const id = 任务数据.id || 生成ID();
-    const { data, error } = await supabase.from('tasks').insert({
+    const { data, error } = await supabaseClient.from('tasks').insert({
       id,
       user_id: userId,
       title: 任务数据.title,
@@ -171,7 +171,7 @@ const 任务API = {
       updated_at: new Date().toISOString(),
     };
     
-    const { error } = await supabase.from('tasks').update(更新字段).eq('id', 任务ID).eq('user_id', userId);
+    const { error } = await supabaseClient.from('tasks').update(更新字段).eq('id', 任务ID).eq('user_id', userId);
     if (error) throw new Error(error.message);
     return { message: '已更新' };
   },
@@ -180,7 +180,7 @@ const 任务API = {
     await 初始化Supabase();
     const userId = await 获取用户ID异步();
     
-    const { error } = await supabase.from('tasks').delete().eq('id', 任务ID).eq('user_id', userId);
+    const { error } = await supabaseClient.from('tasks').delete().eq('id', 任务ID).eq('user_id', userId);
     if (error) throw new Error(error.message);
     return { message: '已删除' };
   },
@@ -189,7 +189,7 @@ const 任务API = {
     await 初始化Supabase();
     const userId = await 获取用户ID异步();
     
-    const { error } = await supabase.from('tasks').update({
+    const { error } = await supabaseClient.from('tasks').update({
       completed: 是否完成,
       completed_at: 是否完成 ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
@@ -208,7 +208,7 @@ const 番茄API = {
     if (!userId) throw new Error('未登录');
     
     const id = 生成ID();
-    const { data, error } = await supabase.from('pomodoro_records').insert({
+    const { data, error } = await supabaseClient.from('pomodoro_records').insert({
       id,
       user_id: userId,
       duration: 记录数据.duration || 25,
@@ -225,7 +225,7 @@ const 番茄API = {
     const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
-    const { data, error } = await supabase.from('pomodoro_records')
+    const { data, error } = await supabaseClient.from('pomodoro_records')
       .select('*')
       .eq('user_id', userId)
       .gte('completed_at', `${日期}T00:00:00`)
@@ -244,7 +244,7 @@ const 标签API = {
     const userId = await 获取用户ID异步();
     if (!userId) throw new Error('未登录');
     
-    const { data, error } = await supabase.from('tags')
+    const { data, error } = await supabaseClient.from('tags')
       .select('*')
       .eq('user_id', userId)
       .order('name');
@@ -259,7 +259,7 @@ const 标签API = {
     if (!userId) throw new Error('未登录');
     
     const id = 生成ID();
-    const { data, error } = await supabase.from('tags').insert({
+    const { data, error } = await supabaseClient.from('tags').insert({
       id,
       user_id: userId,
       name: 标签名,
