@@ -1,5 +1,6 @@
 /**
  * App主入口 - 登录/注册、视图路由、初始化
+ * Supabase直连版 - 不需要Express后端
  */
 
 // ===== Toast提示 =====
@@ -89,18 +90,19 @@ function 保存登录信息(结果) {
   const 用户数据 = {
     id: 结果.user?.id || 结果.id,
     username: 结果.user?.username || 结果.username,
-    token: 结果.token,
   };
-  localStorage.setItem('auth_token', 用户数据.token);
   应用状态.用户 = 用户数据;
   写入存储(存储键.用户信息, 用户数据);
 }
 
 /** 执行登出 */
-function 执行登出() {
+async function 执行登出() {
   if (!confirm('确定要退出登录吗？')) return;
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem(存储键.用户信息);
+  
+  try {
+    await supabase?.auth.signOut();
+  } catch {}
+  
   应用状态.用户 = null;
   应用状态.任务列表 = [];
   应用状态.标签列表 = [];
@@ -111,6 +113,7 @@ function 执行登出() {
     暂停番茄钟();
   }
 
+  localStorage.removeItem(存储键.用户信息);
   document.getElementById('页面-主').style.display = 'none';
   document.getElementById('页面-登录').style.display = 'flex';
   显示Toast('已退出登录');
@@ -183,23 +186,39 @@ function 渲染当前视图() {
 
 /** 应用启动 */
 async function 应用初始化() {
+  // 初始化Supabase
+  try {
+    await 初始化Supabase();
+  } catch (e) {
+    console.error('Supabase初始化失败:', e);
+  }
+
   // 从缓存恢复
   从缓存恢复();
 
   // 初始化表单监听
   初始化重复方式监听();
 
-  // 检查登录状态
-  const token = 获取Token();
-  if (token && 应用状态.用户) {
-    try {
-      // 验证token是否有效
-      await 用户API.获取信息();
+  // 检查登录状态 - 通过Supabase session
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const userId = session.user.id;
+      const username = session.user.user_metadata?.username || '';
+      应用状态.用户 = { id: userId, username };
+      写入存储(存储键.用户信息, 应用状态.用户);
       进入主界面();
-    } catch {
-      // token过期，重新登录
-      localStorage.removeItem('auth_token');
-      应用状态.用户 = null;
+    }
+  } catch (e) {
+    console.warn('Session检查失败:', e);
+    // 尝试用缓存恢复
+    if (应用状态.用户) {
+      try {
+        await 用户API.获取信息();
+        进入主界面();
+      } catch {
+        应用状态.用户 = null;
+      }
     }
   }
 
@@ -214,7 +233,7 @@ async function 应用初始化() {
   // 注册Service Worker
   if ('serviceWorker' in navigator) {
     try {
-      await navigator.serviceWorker.register('/service-worker.js');
+      await navigator.serviceWorker.register('./service-worker.js');
     } catch (e) {
       console.warn('Service Worker注册失败:', e);
     }

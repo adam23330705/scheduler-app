@@ -1,20 +1,21 @@
 /**
- * Service Worker - PWA离线缓存 + 推送通知
+ * Service Worker - PWA离线缓存
+ * Supabase版 - API请求走supabase.co不走本地
  */
 
-const 缓存名 = 'scheduler-v1';
+const 缓存名 = 'scheduler-v2';
 const 需缓存文件 = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/api.js',
-  '/js/store.js',
-  '/js/日历.js',
-  '/js/任务.js',
-  '/js/番茄钟.js',
-  '/js/统计.js',
-  '/js/app.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './css/style.css',
+  './js/api.js',
+  './js/store.js',
+  './js/日历.js',
+  './js/任务.js',
+  './js/番茄钟.js',
+  './js/统计.js',
+  './js/app.js',
+  './manifest.json',
 ];
 
 // ===== 安装：预缓存核心文件 =====
@@ -43,16 +44,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // API请求不走缓存
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return new Response(JSON.stringify({ error: '离线模式' }), {
-          headers: { 'Content-Type': 'application/json' },
-          status: 503,
-        });
-      })
-    );
+  // Supabase API请求不走缓存
+  if (url.hostname.includes('supabase.co') || url.hostname.includes('cdn.jsdelivr.net')) {
     return;
   }
 
@@ -72,7 +65,7 @@ self.addEventListener('fetch', (event) => {
       }).catch(() => {
         // 网络失败，返回离线页面（仅HTML请求）
         if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/index.html');
+          return caches.match('./index.html');
         }
       });
     })
@@ -85,10 +78,10 @@ self.addEventListener('push', (event) => {
   const 标题 = 数据.title || '日程规划';
   const 选项 = {
     body: 数据.body || '你有一条新提醒',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: './icons/icon-192.png',
+    badge: './icons/icon-192.png',
     tag: 数据.tag || 'reminder',
-    data: 数据.url || '/',
+    data: 数据.url || './',
     vibrate: [200, 100, 200],
   };
 
@@ -102,14 +95,12 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then((clients) => {
-      // 如果已有窗口则聚焦
       for (const client of clients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus();
         }
       }
-      // 否则打开新窗口
-      return self.clients.openWindow(event.notification.data || '/');
+      return self.clients.openWindow(event.notification.data || './');
     })
   );
 });
