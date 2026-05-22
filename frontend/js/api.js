@@ -13,15 +13,9 @@ let supabaseClient = null;
 async function 初始化Supabase() {
   if (supabaseClient) return supabaseClient;
 
-  // 等待 HTML 中的 <script> 标签加载完 SDK
-  let 等待次数 = 0;
-  while ((!window.supabase || !window.supabase.createClient) && 等待次数 < 30) {
-    await new Promise(r => setTimeout(r, 200));
-    等待次数++;
-  }
-
+  // SDK 已通过 <script> 标签同步加载，直接使用
   if (!window.supabase || !window.supabase.createClient) {
-    throw new Error('网络连接失败，无法加载服务，请检查网络后刷新页面');
+    throw new Error('服务加载失败，请刷新页面重试');
   }
 
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
