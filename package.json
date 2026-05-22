@@ -2,15 +2,23 @@
   "name": "scheduler-app",
   "version": "1.0.0",
   "private": true,
-  "description": "日程规划 PWA App - 日历/任务/番茄钟/统计",
+  "description": "我的规划 - 日历/任务/番茄钟/统计",
   "scripts": {
     "start": "node server.js",
-    "dev": "node local-server.js"
+    "dev": "node local-server.js",
+    "build": "echo 'No build step needed'",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "android:build": "npx cap sync && npx cap open android"
   },
   "dependencies": {
     "express": "^4.21.0",
     "cors": "^2.8.5",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capgo/capacitor-updater": "^6.0.0"
   },
   "engines": {
     "node": ">=18"

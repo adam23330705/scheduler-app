@@ -5,3 +5,7 @@ local-data.json
 .dev.vars
 *.log
 .env
+node_modules/
+android/.gradle/
+android/build/
+android/app/build/

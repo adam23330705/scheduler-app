@@ -1,0 +1,16 @@
+{
+  "appId": "com.myplan.app",
+  "appName": "我的规划",
+  "webDir": "frontend",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoDeleteFailed": true,
+      "autoDeletePrevious": true,
+      "autoUpdate": true,
+      "resetWhenUpdate": true
+    }
+  }
+}

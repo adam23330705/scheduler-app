@@ -1,6 +1,6 @@
 {
-  "name": "日程规划",
-  "short_name": "日程",
+  "name": "我的规划",
+  "short_name": "我的规划",
   "description": "让每一天都有条不紊 - 日历、任务、番茄钟、统计",
   "start_url": "./",
   "display": "standalone",
