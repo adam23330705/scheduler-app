@@ -1,6 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#ef4444"/>
-  <circle cx="50" cy="38" r="16" fill="#fca5a5"/>
-  <ellipse cx="50" cy="72" rx="22" ry="18" fill="#fca5a5"/>
-  <text x="50" y="95" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif">于总</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c0392b"/>
+      <stop offset="100%" stop-color="#8e44ad"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5d0c5"/>
+      <stop offset="100%" stop-color="#e8b4a8"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c1810"/>
+      <stop offset="100%" stop-color="#1a0f0a"/>
+    </linearGradient>
+    <linearGradient id="suit" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5a1a3a"/>
+      <stop offset="100%" stop-color="#3a1030"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- 背景 -->
+  <circle cx="50" cy="50" r="50" fill="url(#bg)"/>
+  <!-- 身体/西装 -->
+  <path d="M18 95 Q18 72 30 62 Q40 56 50 56 Q60 56 70 62 Q82 72 82 95 Z" fill="url(#suit)"/>
+  <!-- 脖子 -->
+  <rect x="42" y="48" width="16" height="14" fill="url(#skin)" rx="4"/>
+  <!-- 脸型 -->
+  <ellipse cx="50" cy="38" rx="19" ry="22" fill="url(#skin)"/>
+  <!-- 头发 -->
+  <path d="M29 34 Q29 12 50 12 Q71 12 71 34 Q71 40 68 36 Q65 20 50 18 Q35 20 32 36 Q29 40 29 34 Z" fill="url(#hair)"/>
+  <path d="M68 36 Q72 42 70 52 L66 48 Q66 40 68 36 Z" fill="url(#hair)"/>
+  <!-- 眼睛 -->
+  <ellipse cx="43" cy="38" rx="3" ry="2" fill="#3a2018"/>
+  <ellipse cx="57" cy="38" rx="3" ry="2" fill="#3a2018"/>
+  <!-- 眉毛 -->
+  <path d="M39 33 Q43 31 47 33" stroke="#2c1810" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M53 33 Q57 31 61 33" stroke="#2c1810" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- 嘴唇 -->
+  <path d="M45 46 Q50 48 55 46 Q50 50 45 46 Z" fill="#c97b7b"/>
+  <!-- 珍珠项链 -->
+  <circle cx="46" cy="54" r="2" fill="#f0f0f0" opacity="0.8"/>
+  <circle cx="50" cy="55" r="2" fill="#f0f0f0" opacity="0.8"/>
+  <circle cx="54" cy="54" r="2" fill="#f0f0f0" opacity="0.8"/>
 </svg>

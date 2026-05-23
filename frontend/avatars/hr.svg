@@ -1,6 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#22c55e"/>
-  <circle cx="50" cy="38" r="16" fill="#86efac"/>
-  <ellipse cx="50" cy="72" rx="22" ry="18" fill="#86efac"/>
-  <text x="50" y="95" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif">李老师</text>
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00897b"/>
+      <stop offset="100%" stop-color="#00695c"/>
+    </linearGradient>
+    <linearGradient id="skin4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5e6d3"/>
+      <stop offset="100%" stop-color="#deb887"/>
+    </linearGradient>
+    <linearGradient id="hair4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3e2723"/>
+      <stop offset="100%" stop-color="#1a0f0d"/>
+    </linearGradient>
+    <linearGradient id="suit4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e7d32"/>
+      <stop offset="100%" stop-color="#1b5e20"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#bg4)"/>
+  <!-- 身体 -->
+  <path d="M18 95 Q18 72 30 62 Q40 56 50 56 Q60 56 70 62 Q82 72 82 95 Z" fill="url(#suit4)"/>
+  <!-- 眼镜链装饰 -->
+  <path d="M30 42 Q25 50 30 58" stroke="#c0a060" stroke-width="1" fill="none"/>
+  <!-- 脖子 -->
+  <rect x="42" y="48" width="16" height="14" fill="url(#skin4)" rx="4"/>
+  <!-- 脸型 -->
+  <ellipse cx="50" cy="38" rx="19" ry="22" fill="url(#skin4)"/>
+  <!-- 头发（盘发） -->
+  <path d="M28 32 Q28 10 50 10 Q72 10 72 32 Q72 44 68 38 Q65 20 50 18 Q35 20 32 38 Q28 44 28 32 Z" fill="url(#hair4)"/>
+  <!-- 发髻 -->
+  <circle cx="65" cy="22" r="8" fill="url(#hair4)"/>
+  <!-- 眼镜 -->
+  <circle cx="43" cy="38" r="5" stroke="#5d4037" stroke-width="1.2" fill="none"/>
+  <circle cx="57" cy="38" r="5" stroke="#5d4037" stroke-width="1.2" fill="none"/>
+  <line x1="48" y1="38" x2="52" y2="38" stroke="#5d4037" stroke-width="1.2"/>
+  <!-- 眼睛 -->
+  <circle cx="43" cy="38" r="1.5" fill="#3a2018"/>
+  <circle cx="57" cy="38" r="1.5" fill="#3a2018"/>
+  <!-- 眉毛 -->
+  <path d="M39 33 Q43 32 47 34" stroke="#3e2723" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M53 34 Q57 32 61 33" stroke="#3e2723" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- 嘴唇 -->
+  <path d="M45 46 Q50 48 55 46 Q50 50 45 46 Z" fill="#b87070"/>
 </svg>

@@ -1,6 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#f59e0b"/>
-  <circle cx="50" cy="38" r="16" fill="#fde68a"/>
-  <ellipse cx="50" cy="72" rx="22" ry="18" fill="#fde68a"/>
-  <text x="50" y="95" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif">赵经理</text>
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2980b9"/>
+      <stop offset="100%" stop-color="#6c3483"/>
+    </linearGradient>
+    <linearGradient id="skin2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fce4d6"/>
+      <stop offset="100%" stop-color="#e8c4a8"/>
+    </linearGradient>
+    <linearGradient id="hair2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a3728"/>
+      <stop offset="100%" stop-color="#2a1e15"/>
+    </linearGradient>
+    <linearGradient id="suit2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a5276"/>
+      <stop offset="100%" stop-color="#0e3a5c"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#bg2)"/>
+  <!-- 身体 -->
+  <path d="M18 95 Q18 72 30 62 Q40 56 50 56 Q60 56 70 62 Q82 72 82 95 Z" fill="url(#suit2)"/>
+  <!-- 白衬衫领子 -->
+  <path d="M42 60 L50 70 L58 60 L50 65 Z" fill="#fff"/>
+  <!-- 脖子 -->
+  <rect x="42" y="48" width="16" height="14" fill="url(#skin2)" rx="4"/>
+  <!-- 脸型 -->
+  <ellipse cx="50" cy="38" rx="18" ry="22" fill="url(#skin2)"/>
+  <!-- 头发 -->
+  <path d="M30 32 Q30 10 50 10 Q70 10 70 32 Q70 40 66 36 Q62 18 50 16 Q38 18 34 36 Q30 40 30 32 Z" fill="url(#hair2)"/>
+  <path d="M70 32 Q74 38 72 48 L68 44 Q68 36 70 32 Z" fill="url(#hair2)"/>
+  <!-- 眼睛 -->
+  <ellipse cx="43" cy="38" rx="3" ry="2" fill="#2c2416"/>
+  <ellipse cx="57" cy="38" rx="3" ry="2" fill="#2c2416"/>
+  <!-- 眉毛 -->
+  <path d="M39 33 Q43 32 47 34" stroke="#4a3728" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M53 34 Q57 32 61 33" stroke="#4a3728" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- 嘴唇 -->
+  <path d="M45 46 Q50 48 55 46 Q50 50 45 46 Z" fill="#d4827a"/>
+  <!-- 耳环 -->
+  <circle cx="30" cy="42" r="2" fill="#f0c040"/>
 </svg>

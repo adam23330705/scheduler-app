@@ -503,12 +503,13 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
 }
 .返回按钮 {
-  width:36px; height:36px; border-radius:50%;
-  background:var(--卡片色2); font-size:18px;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:center; justify-content:center; gap:4px;
+  padding:8px 16px; border-radius:100px;
+  background:var(--卡片色2); font-size:15px; font-weight:600;
   transition:background 0.2s, transform 0.1s;
+  white-space:nowrap;
 }
-.返回按钮:active { background:var(--主色); transform:scale(0.9); }
+.返回按钮:active { background:var(--主色); transform:scale(0.95); color:white; }
 .对话对象信息 { display:flex; align-items:center; gap:10px; }
 .角色头像-小 {
   width:36px; height:36px; min-width:36px; border-radius:50%;
