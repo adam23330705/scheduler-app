@@ -682,3 +682,92 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   .顶部栏, .底部导航 { max-width:480px; left:50%; transform:translateX(-50%); }
   #视图-对话 { max-width:480px; left:50%; transform:translateX(-50%); }
 }
+
+/* ===== KPI区域 ===== */
+.KPI区域 { padding:16px; margin-bottom:8px; }
+.KPI标题 { font-size:16px; font-weight:600; margin-bottom:12px; }
+.KPI卡片组 { display:flex; gap:10px; }
+.KPI卡片 {
+  flex:1; background:var(--卡片色); border-radius:var(--圆角小);
+  padding:12px 8px; text-align:center;
+}
+.KPI数字 { display:block; font-size:24px; font-weight:700; color:var(--主色浅); }
+.KPI标签 { display:block; font-size:11px; color:var(--文字副); margin-top:4px; }
+
+/* ===== 任务日历区 ===== */
+.任务日历区 {
+  padding:0 16px; margin-bottom:12px;
+}
+.任务日历区 .日历头 {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 0;
+}
+.任务日历区 .日历头 h2 { font-size:16px; }
+.任务日历区 .月份切换 { background:var(--卡片色); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.任务日历区 .星期头 { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:11px; color:var(--文字副); padding:4px 0; }
+.任务日历区 .日历格子 { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+
+/* ===== 今日任务区 ===== */
+.今日任务区 { padding:0 16px; }
+.今日标题行 { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.今日标题行 h3 { font-size:16px; font-weight:600; }
+
+/* ===== 消息页 ===== */
+.消息页标题 { padding:16px; }
+.消息页标题 h2 { font-size:20px; font-weight:600; }
+.消息列表 { padding:0 16px; }
+.消息全部已读 {
+  text-align:right; font-size:12px; color:var(--主色浅);
+  padding:8px 16px; cursor:pointer;
+}
+.消息项 {
+  display:flex; align-items:center; gap:12px;
+  background:var(--卡片色); border-radius:var(--圆角小);
+  padding:12px; margin-bottom:8px; cursor:pointer;
+  transition: background 0.2s;
+}
+.消息项:active { background:var(--卡片色2); }
+.消息项.未读 { border-left:3px solid var(--主色); }
+.消息头像 {
+  width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0; cursor:pointer;
+}
+.消息内容区 { flex:1; min-width:0; }
+.消息头部 { display:flex; justify-content:space-between; margin-bottom:4px; }
+.消息角色名 { font-size:14px; font-weight:600; }
+.消息时间 { font-size:11px; color:var(--文字副); }
+.消息预览 { font-size:13px; color:var(--文字副); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.消息类型图标 { margin-right:4px; }
+.消息未读点 {
+  background:var(--危险色); color:#fff; font-size:11px; font-weight:600;
+  min-width:20px; height:20px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  padding:0 6px;
+}
+
+/* ===== 导航未读标记 ===== */
+.未读标记 {
+  position:absolute; top:2px; right:calc(50% - 18px);
+  background:var(--危险色); color:#fff; font-size:10px; font-weight:600;
+  min-width:16px; height:16px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  padding:0 4px;
+}
+.导航按钮 { position:relative; }
+
+/* ===== 对话输入中 ===== */
+.输入中 {
+  color:var(--文字副); font-style:italic;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+/* ===== 竞争对手朋友圈 ===== */
+.竞争对手动态 { border-left:2px solid var(--文字淡); }
+.同行标签 { background:rgba(107,114,128,0.3) !important; color:var(--文字副) !important; }
+
+/* ===== 排行数据 ===== */
+.排行数据 { display:flex; flex-direction:column; align-items:flex-end; gap:2px; margin-left:auto; }
+.排行月增, .排行月播 { font-size:10px; color:var(--文字副); }
+.排行月增 { color:var(--成功色); }

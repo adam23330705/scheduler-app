@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.myplan.app"
+    namespace "com.hualei.virtualcompany"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.myplan.app"
+        applicationId "com.hualei.virtualcompany"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -20,6 +20,18 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        pickFirst 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-stdlib')) {
+            details.useVersion '1.8.22'
+            details.because 'Force consistent kotlin-stdlib version to avoid duplicates'
         }
     }
 }

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">我的规划</string>
-    <string name="title_activity_main">我的规划</string>
-    <string name="package_name">com.myplan.app</string>
-    <string name="custom_url_scheme">com.myplan.app</string>
+    <string name="app_name">我的虚拟公司</string>
+    <string name="title_activity_main">我的虚拟公司</string>
+    <string name="package_name">com.hualei.virtualcompany</string>
+    <string name="custom_url_scheme">com.hualei.virtualcompany</string>
 </resources>

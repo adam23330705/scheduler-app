@@ -50,7 +50,6 @@
       </div>
       <div class="顶部右">
         <button class="图标按钮" onclick="显示添加任务弹窗()" title="添加任务">＋</button>
-        <button class="图标按钮" onclick="执行登出()" title="退出">⏻</button>
       </div>
     </header>
 
@@ -80,14 +79,14 @@
         <div id="角色列表" class="角色列表"></div>
 
         <!-- 竞争排行 -->
-        <div class="区块标题"><span>🏆 公司排行</span></div>
+        <div class="区块标题"><span>🏆 UP主排行</span></div>
         <div id="竞争排行" class="竞争排行"></div>
       </div>
 
-      <!-- ========== 角色对话页 ========== -->
+      <!-- ========== 角色对话页（全屏覆盖） ========== -->
       <div id="视图-对话" class="视图" style="display:none">
         <div class="对话头部">
-          <button class="返回按钮" onclick="切换视图('公司')">←</button>
+          <button class="返回按钮" onclick="返回主界面()">←</button>
           <div class="对话对象信息">
             <div class="角色头像-小" id="对话对象头像"></div>
             <div>
@@ -103,36 +102,62 @@
         </div>
       </div>
 
-      <!-- ========== 日历视图 ========== -->
-      <div id="视图-日历" class="视图" style="display:none">
-        <div class="日历头">
-          <button class="月份切换" onclick="切换月份(-1)">◀</button>
-          <h2 id="当前月份显示">2026年1月</h2>
-          <button class="月份切换" onclick="切换月份(1)">▶</button>
+      <!-- ========== 任务视图（合并日历+任务+KPI） ========== -->
+      <div id="视图-任务" class="视图" style="display:none">
+        <!-- 月度KPI -->
+        <div class="KPI区域">
+          <div class="KPI标题">📊 本月KPI</div>
+          <div class="KPI卡片组">
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度完成">0</span>
+              <span class="KPI标签">已完成</span>
+            </div>
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度未完">0</span>
+              <span class="KPI标签">未完成</span>
+            </div>
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度完成率">0%</span>
+              <span class="KPI标签">完成率</span>
+            </div>
+          </div>
         </div>
-        <div class="星期头">
-          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+
+        <!-- 日历区域（紧凑版） -->
+        <div class="任务日历区">
+          <div class="日历头">
+            <button class="月份切换" onclick="切换月份(-1)">◀</button>
+            <h2 id="当前月份显示">2026年1月</h2>
+            <button class="月份切换" onclick="切换月份(1)">▶</button>
+          </div>
+          <div class="星期头">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div id="日历格子" class="日历格子"></div>
         </div>
-        <div id="日历格子" class="日历格子"></div>
-        <div id="日程详情区" class="日程详情区">
-          <div class="日程详情标题" id="日程详情标题">今日日程</div>
-          <div id="日程列表" class="日程列表"></div>
+
+        <!-- 今日任务 -->
+        <div class="今日任务区">
+          <div class="今日标题行">
+            <h3 id="今日任务标题">今日任务</h3>
+            <span class="任务计数" id="今日任务计数">0个</span>
+          </div>
+          <div class="总览筛选">
+            <button class="筛选按钮 活跃" onclick="筛选总览('全部')" id="筛选-全部">全部</button>
+            <button class="筛选按钮" onclick="筛选总览('紧急')" id="筛选-紧急">⚡ 紧急</button>
+            <button class="筛选按钮" onclick="筛选总览('重要')" id="筛选-重要">⭐ 重要</button>
+            <button class="筛选按钮" onclick="筛选总览('普通')" id="筛选-普通">📝 普通</button>
+          </div>
+          <div id="总览任务列表" class="任务列表"></div>
         </div>
       </div>
 
-      <!-- ========== 任务视图 ========== -->
-      <div id="视图-任务" class="视图" style="display:none">
-        <div class="今日标题">
-          <h2 id="任务视图标题">任务</h2>
-          <span class="任务计数" id="任务计数显示">0个任务</span>
+      <!-- ========== 消息 ========== -->
+      <div id="视图-消息" class="视图" style="display:none">
+        <div class="消息页标题">
+          <h2>消息</h2>
         </div>
-        <div class="总览筛选">
-          <button class="筛选按钮 活跃" onclick="筛选总览('全部')" id="筛选-全部">全部</button>
-          <button class="筛选按钮" onclick="筛选总览('紧急')" id="筛选-紧急">⚡ 紧急</button>
-          <button class="筛选按钮" onclick="筛选总览('重要')" id="筛选-重要">⭐ 重要</button>
-          <button class="筛选按钮" onclick="筛选总览('普通')" id="筛选-普通">📝 普通</button>
-        </div>
-        <div id="总览任务列表" class="任务列表"></div>
+        <div id="消息列表" class="消息列表"></div>
       </div>
 
       <!-- ========== 朋友圈 ========== -->
@@ -179,9 +204,6 @@
           </button>
           <button class="我的功能项" onclick="切换视图('统计')">
             <span>📊</span><span>统计</span><span class="功能箭头">›</span>
-          </button>
-          <button class="我的功能项" onclick="显示后门()">
-            <span>🔧</span><span>角色设定（后门）</span><span class="功能箭头">›</span>
           </button>
           <button class="我的功能项" onclick="执行登出()">
             <span>🚪</span><span>退出登录</span><span class="功能箭头">›</span>
@@ -243,19 +265,19 @@
 
     </main>
 
-    <!-- 底部导航（5个Tab） -->
+    <!-- 底部导航（5个Tab：公司、任务、消息、朋友圈、我的） -->
     <nav class="底部导航">
       <button class="导航按钮 活跃" onclick="切换视图('公司')" id="导航-公司">
         <span class="导航图标">🏢</span>
         <span class="导航标签">公司</span>
       </button>
-      <button class="导航按钮" onclick="切换视图('日历')" id="导航-日历">
-        <span class="导航图标">📅</span>
-        <span class="导航标签">日历</span>
-      </button>
       <button class="导航按钮" onclick="切换视图('任务')" id="导航-任务">
         <span class="导航图标">📋</span>
         <span class="导航标签">任务</span>
+      </button>
+      <button class="导航按钮" onclick="切换视图('消息')" id="导航-消息">
+        <span class="导航图标">💬</span>
+        <span class="导航标签">消息</span>
       </button>
       <button class="导航按钮" onclick="切换视图('朋友圈')" id="导航-朋友圈">
         <span class="导航图标">🌐</span>
@@ -341,17 +363,6 @@
     </div>
   </div>
 
-  <!-- 后门弹窗 -->
-  <div id="弹窗-后门" class="弹窗遮罩" style="display:none" onclick="关闭后门弹窗(event)">
-    <div class="弹窗内容">
-      <div class="弹窗标题">
-        <h3>🔧 角色设定（后门）</h3>
-        <button class="关闭按钮" onclick="document.getElementById('弹窗-后门').style.display='none'">✕</button>
-      </div>
-      <div class="弹窗表单" id="后门内容"></div>
-    </div>
-  </div>
-
   <!-- Toast提示 -->
   <div id="toast提示" class="toast"></div>
 
@@ -362,6 +373,7 @@
   <script src="./js/角色.js"></script>
   <script src="./js/对话.js"></script>
   <script src="./js/朋友圈.js"></script>
+  <script src="./js/消息.js"></script>
   <script src="./js/日历.js"></script>
   <script src="./js/任务.js"></script>
   <script src="./js/番茄钟.js"></script>

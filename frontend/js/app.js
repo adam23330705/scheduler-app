@@ -1,6 +1,7 @@
 /**
  * App主入口 - 登录/注册、视图路由、初始化
  * 花蕾传媒 · 我的虚拟公司
+ * Tab: 公司、任务、消息、朋友圈、我的
  */
 
 // ===== Toast提示 =====
@@ -18,21 +19,18 @@ function 显示Toast(消息) {
 
 // ===== 登录/注册 =====
 
-/** 切换到注册表单 */
 function 切换到注册() {
   document.getElementById('表单-登录').style.display = 'none';
   document.getElementById('表单-注册').style.display = 'flex';
   document.getElementById('登录错误信息').textContent = '';
 }
 
-/** 切换到登录表单 */
 function 切换到登录() {
   document.getElementById('表单-注册').style.display = 'none';
   document.getElementById('表单-登录').style.display = 'flex';
   document.getElementById('登录错误信息').textContent = '';
 }
 
-/** 执行登录 */
 async function 执行登录() {
   const 用户名 = document.getElementById('输入-用户名').value.trim();
   const 密码 = document.getElementById('输入-密码').value;
@@ -52,7 +50,6 @@ async function 执行登录() {
   }
 }
 
-/** 执行注册 */
 async function 执行注册() {
   const 用户名 = document.getElementById('输入-注册用户名').value.trim();
   const 密码 = document.getElementById('输入-注册密码').value;
@@ -85,7 +82,6 @@ async function 执行注册() {
   }
 }
 
-/** 保存登录信息到本地 */
 function 保存登录信息(结果) {
   const 用户数据 = {
     id: 结果.user?.id || 结果.id,
@@ -95,20 +91,18 @@ function 保存登录信息(结果) {
   写入存储(存储键.用户信息, 用户数据);
 }
 
-/** 执行登出 */
 async function 执行登出() {
   if (!confirm('确定要退出登录吗？')) return;
-  
+
   try {
     await supabaseClient?.auth.signOut();
   } catch {}
-  
+
   应用状态.用户 = null;
   应用状态.任务列表 = [];
   应用状态.标签列表 = [];
   应用状态.番茄记录 = [];
 
-  // 停止番茄钟
   if (番茄状态.运行中) {
     暂停番茄钟();
   }
@@ -121,7 +115,6 @@ async function 执行登出() {
 
 // ===== 视图路由 =====
 
-/** 进入主界面 */
 async function 进入主界面() {
   document.getElementById('页面-登录').style.display = 'none';
   document.getElementById('页面-主').style.display = 'flex';
@@ -130,16 +123,27 @@ async function 进入主界面() {
   // 加载数据
   await 刷新所有数据();
   await 刷新番茄记录();
-
-  // 处理离线队列
   await 处理离线队列();
+
+  // 加载线上角色配置（后门机制）
+  加载线上角色配置();
 
   // 渲染初始视图 - 默认进入公司页
   切换视图('公司');
+
+  // 启动消息催促
+  启动消息催促();
+
+  // 更新消息导航未读
+  更新消息导航未读();
 }
 
 /** 切换视图 */
 function 切换视图(视图名) {
+  // 记住上一个视图（用于对话返回）
+  if (视图名 !== '对话' && 应用状态.当前视图 !== '对话') {
+    应用状态.上一个视图 = 应用状态.当前视图;
+  }
   应用状态.当前视图 = 视图名;
 
   // 对话视图是全屏覆盖，单独处理
@@ -155,7 +159,7 @@ function 切换视图(视图名) {
   const 目标 = document.getElementById(`视图-${视图名}`);
   if (目标) 目标.style.display = 'block';
 
-  // 显示底部导航（对话时隐藏）
+  // 显示底部导航
   const 底导 = document.querySelector('.底部导航');
   if (底导) 底导.style.display = 'flex';
 
@@ -167,8 +171,8 @@ function 切换视图(视图名) {
   // 更新标题
   const 标题映射 = {
     '公司': '花蕾传媒',
-    '日历': '日历',
     '任务': '任务',
+    '消息': '消息',
     '朋友圈': '朋友圈',
     '我的': '我的',
     '番茄钟': '专注',
@@ -189,11 +193,12 @@ function 渲染当前视图() {
       渲染竞争排行();
       渲染今日动态();
       break;
-    case '日历':
-      渲染日历();
-      break;
     case '任务':
-      渲染总览视图();
+      渲染日历();
+      渲染任务视图();
+      break;
+    case '消息':
+      渲染消息页();
       break;
     case '朋友圈':
       渲染朋友圈();
@@ -215,8 +220,7 @@ function 渲染我的页面() {
   const 用户名 = document.getElementById('我的用户名');
   if (用户名) 用户名.textContent = 应用状态.用户?.username || '';
 
-  // 更新统计数据
-  const 今日 = 获取今日任务 ? 获取今日任务() : [];
+  const 今日 = typeof 获取今日任务 === 'function' ? 获取今日任务() : [];
   const 已完成 = 今日.filter(t => t.completed).length;
   const 总数 = 今日.length;
   const 完成率 = 总数 > 0 ? Math.round(已完成 / 总数 * 100) : 0;
@@ -231,31 +235,71 @@ function 渲染我的页面() {
 // ===== 角色提醒定时器 =====
 let 提醒定时器 = null;
 
-/** 启动角色提醒 */
 function 启动角色提醒() {
   if (提醒定时器) clearInterval(提醒定时器);
 
-  // 每15分钟触发一次随机角色提醒
   提醒定时器 = setInterval(() => {
     const 角色 = ['小陈', '赵经理', '小周'];
     const 随机角色 = 角色[Math.floor(Math.random() * 角色.length)];
     const 提醒 = 生成主动提醒(随机角色);
     if (提醒) {
-      显示Toast(`${角色数据[随机角色].头像emoji} ${提醒}`);
+      // 发到消息页而不是Toast
+      添加新消息(随机角色, '催促', 提醒);
     }
 
-    // 同时可能生成朋友圈动态
+    // 可能生成朋友圈动态
     if (Math.random() < 0.3) {
       自动生成动态();
     }
-  }, 15 * 60 * 1000); // 15分钟
+  }, 15 * 60 * 1000);
+}
+
+/** 渲染任务视图（合并日历+任务+KPI） */
+function 渲染任务视图() {
+  // 更新KPI
+  const 今日 = typeof 获取今日任务 === 'function' ? 获取今日任务() : [];
+  const 月任务 = 获取本月任务();
+  const 月完成 = 月任务.filter(t => t.completed).length;
+  const 月未完 = 月任务.filter(t => !t.completed).length;
+  const 月完成率 = 月任务.length > 0 ? Math.round(月完成 / 月任务.length * 100) : 0;
+
+  const KPI完成 = document.getElementById('KPI-月度完成');
+  const KPI未完 = document.getElementById('KPI-月度未完');
+  const KPI完成率 = document.getElementById('KPI-月度完成率');
+
+  if (KPI完成) KPI完成.textContent = 月完成;
+  if (KPI未完) KPI未完.textContent = 月未完;
+  if (KPI完成率) KPI完成率.textContent = 月完成率 + '%';
+
+  // 更新今日任务标题
+  const 今天 = new Date();
+  const 星期名 = ['日', '一', '二', '三', '四', '五', '六'];
+  const 标题 = document.getElementById('今日任务标题');
+  if (标题) 标题.textContent = `${今天.getMonth() + 1}月${今天.getDate()}日 星期${星期名[今天.getDay()]}`;
+
+  const 未完成 = 今日.filter(t => !t.completed);
+  const 计数 = document.getElementById('今日任务计数');
+  if (计数) 计数.textContent = `${未完成.length}个待办`;
+
+  // 渲染任务列表
+  渲染总览视图();
+}
+
+/** 获取本月任务 */
+function 获取本月任务() {
+  const 现在 = new Date();
+  const 年 = 现在.getFullYear();
+  const 月 = 现在.getMonth();
+  return 应用状态.任务列表.filter(t => {
+    if (!t.due_date) return false;
+    const d = new Date(t.due_date);
+    return d.getFullYear() === 年 && d.getMonth() === 月;
+  });
 }
 
 // ===== 初始化 =====
 
-/** 应用启动 */
 async function 应用初始化() {
-  // 初始化Supabase
   try {
     await 初始化Supabase();
   } catch (e) {
@@ -265,13 +309,9 @@ async function 应用初始化() {
     return;
   }
 
-  // 从缓存恢复
   从缓存恢复();
-
-  // 初始化表单监听
   初始化重复方式监听();
 
-  // 检查登录状态 - 通过Supabase session
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
@@ -283,7 +323,6 @@ async function 应用初始化() {
     }
   } catch (e) {
     console.warn('Session检查失败:', e);
-    // 尝试用缓存恢复
     if (应用状态.用户) {
       try {
         await 用户API.获取信息();
@@ -294,7 +333,6 @@ async function 应用初始化() {
     }
   }
 
-  // 监听网络恢复
   window.addEventListener('online', async () => {
     显示Toast('网络已恢复，正在同步...');
     await 处理离线队列();
@@ -302,7 +340,6 @@ async function 应用初始化() {
     渲染当前视图();
   });
 
-  // 注册Service Worker
   if ('serviceWorker' in navigator) {
     try {
       await navigator.serviceWorker.register('./service-worker.js');
@@ -312,5 +349,4 @@ async function 应用初始化() {
   }
 }
 
-// 启动
 应用初始化();

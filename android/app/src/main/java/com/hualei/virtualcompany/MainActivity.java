@@ -1,4 +1,4 @@
-package com.myplan.app;
+package com.hualei.virtualcompany;
 
 import com.getcapacitor.BridgeActivity;
 
