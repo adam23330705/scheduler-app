@@ -131,6 +131,9 @@ async function 进入主界面() {
   // 渲染初始视图 - 默认进入公司页
   切换视图('公司');
 
+  // 初始化history state，确保返回键能正确工作
+  history.replaceState({ view: '公司' }, '');
+
   // 启动消息催促
   启动消息催促();
 
@@ -150,7 +153,14 @@ function 切换视图(视图名) {
   if (视图名 === '对话') {
     document.querySelectorAll('.视图').forEach(v => v.style.display = 'none');
     document.getElementById('视图-对话').style.display = 'flex';
+    // push历史状态，拦截Android返回键
+    history.pushState({ view: '对话' }, '');
     return;
+  }
+
+  // 子视图（番茄钟、统计）也需要拦截返回键
+  if (视图名 === '番茄钟' || 视图名 === '统计') {
+    history.pushState({ view: 视图名 }, '');
   }
 
   // 隐藏所有视图
@@ -232,6 +242,51 @@ function 渲染我的页面() {
   if (番茄数元素) 番茄数元素.textContent = 应用状态.番茄记录?.length || 0;
 }
 
+// ===== 检查更新 =====
+const 当前版本 = '1.0.1';
+
+/** 检查是否有新版本 */
+async function 检查更新() {
+  const 箭头 = document.getElementById('更新箭头');
+  if (箭头) 箭头.textContent = '⟳';
+
+  try {
+    // 从GitHub Pages获取线上版本号（加时间戳防止缓存）
+    const 响应 = await fetch(`https://adam23330705.github.io/scheduler-app/version.json?t=${Date.now()}`);
+    if (!响应.ok) {
+      显示Toast('检查更新失败，请检查网络');
+      if (箭头) 箭头.textContent = '›';
+      return;
+    }
+
+    const 数据 = await 响应.json();
+    const 线上版本 = 数据.version;
+    const 更新说明 = 数据.changelog || '';
+
+    if (线上版本 !== 当前版本) {
+      // 有新版本
+      if (confirm(`发现新版本 v${线上版本}！\n\n${更新说明}\n\n是否立即更新？`)) {
+        // 清除缓存并重新加载
+        if ('caches' in window) {
+          const 缓存列表 = await caches.keys();
+          await Promise.all(缓存列表.map(name => caches.delete(name)));
+        }
+        显示Toast('正在更新...');
+        setTimeout(() => {
+          location.reload(true);
+        }, 1500);
+      }
+    } else {
+      显示Toast('当前已是最新版本 v' + 当前版本);
+    }
+  } catch (e) {
+    console.error('检查更新失败:', e);
+    显示Toast('检查更新失败');
+  }
+
+  if (箭头) 箭头.textContent = '›';
+}
+
 // ===== 角色提醒定时器 =====
 let 提醒定时器 = null;
 
@@ -296,6 +351,39 @@ function 获取本月任务() {
     return d.getFullYear() === 年 && d.getMonth() === 月;
   });
 }
+
+// ===== Android返回键拦截 =====
+
+/** 监听popstate事件，拦截Android硬件返回键 */
+window.addEventListener('popstate', function(event) {
+  const 当前 = 应用状态.当前视图;
+
+  // 在主Tab页（公司/任务/消息/朋友圈/我的）按返回键 → 退出确认
+  if (['公司', '任务', '消息', '朋友圈', '我的'].includes(当前)) {
+    // 再次按返回才退出，避免误触
+    if (应用状态.最近按了返回) {
+      // 真正退出
+      return; // 不阻止，让默认行为关闭APP
+    }
+    应用状态.最近按了返回 = true;
+    显示Toast('再按一次退出应用');
+    history.pushState({ view: 当前 }, ''); // 重新push，防止下次直接退出
+    setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
+    return;
+  }
+
+  // 在对话视图按返回 → 回到上一个Tab
+  if (当前 === '对话') {
+    返回主界面();
+    return;
+  }
+
+  // 在子视图（番茄钟/统计）按返回 → 回到"我的"
+  if (当前 === '番茄钟' || 当前 === '统计') {
+    切换视图('我的');
+    return;
+  }
+});
 
 // ===== 初始化 =====
 

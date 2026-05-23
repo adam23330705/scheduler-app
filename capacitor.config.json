@@ -2,6 +2,11 @@
   "appId": "com.hualei.virtualcompany",
   "appName": "我的虚拟公司",
   "webDir": "frontend",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  },
   "server": {
     "androidScheme": "https",
     "url": "https://adam23330705.github.io/scheduler-app/"

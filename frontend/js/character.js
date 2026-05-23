@@ -223,25 +223,48 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
   messages.push({ role: 'user', content: 用户消息 });
 
   try {
-    const response = await fetch(DEEPSEEK_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: messages,
-        max_tokens: 200,
-        temperature: 0.8,
-      }),
-    });
+    // 优先使用CapacitorHttp（绕过CORS），降级到fetch（浏览器/PWA环境）
+    let data;
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
+      // Android原生环境 - 用CapacitorHttp绕过CORS
+      const options = {
+        url: DEEPSEEK_API_URL,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        },
+        data: {
+          model: 'deepseek-chat',
+          messages: messages,
+          max_tokens: 200,
+          temperature: 0.8,
+        },
+      };
+      const response = await window.Capacitor.Plugins.CapacitorHttp.request(options);
+      data = response.data;
+    } else {
+      // 浏览器/PWA环境 - 用普通fetch
+      const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: messages,
+          max_tokens: 200,
+          temperature: 0.8,
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`API错误: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`API错误: ${response.status}`);
+      }
+      data = await response.json();
     }
 
-    const data = await response.json();
     return data.choices?.[0]?.message?.content?.trim() || '...';
   } catch (error) {
     console.error('DeepSeek API调用失败:', error);
