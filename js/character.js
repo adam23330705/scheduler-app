@@ -496,7 +496,7 @@ function 渲染今日动态() {
 /** 从线上加载角色配置覆盖本地默认值 */
 async function 加载线上角色配置() {
   try {
-    const response = await fetch('https://adam23330705.github.io/scheduler-app/角色配置.json');
+    const response = await fetch('https://adam23330705.github.io/scheduler-app/character-config.json');
     if (response.ok) {
       const 配置 = await response.json();
       if (配置.角色) {

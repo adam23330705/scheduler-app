@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="#6366f1"/>
+  <circle cx="50" cy="38" r="15" fill="#a5b4fc"/>
+  <ellipse cx="50" cy="72" rx="21" ry="17" fill="#a5b4fc"/>
+  <text x="50" y="95" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif">小周</text>
+</svg>
