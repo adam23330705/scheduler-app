@@ -1,16 +1,9 @@
 {
-  "appId": "com.myplan.app",
-  "appName": "我的规划",
+  "appId": "com.hualei.virtualcompany",
+  "appName": "我的虚拟公司",
   "webDir": "frontend",
   "server": {
-    "androidScheme": "https"
-  },
-  "plugins": {
-    "CapacitorUpdater": {
-      "autoDeleteFailed": true,
-      "autoDeletePrevious": true,
-      "autoUpdate": true,
-      "resetWhenUpdate": true
-    }
+    "androidScheme": "https",
+    "url": "https://adam23330705.github.io/scheduler-app/"
   }
 }

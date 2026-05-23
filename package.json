@@ -12,13 +12,13 @@
     "android:build": "npx cap sync && npx cap open android"
   },
   "dependencies": {
-    "express": "^4.21.0",
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capgo/capacitor-updater": "^6.0.0",
     "cors": "^2.8.5",
-    "pg": "^8.13.0",
-    "@capacitor/core": "^6.0.0",
-    "@capacitor/cli": "^6.0.0",
-    "@capacitor/android": "^6.0.0",
-    "@capgo/capacitor-updater": "^6.0.0"
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
   },
   "engines": {
     "node": ">=18"
