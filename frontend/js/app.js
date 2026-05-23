@@ -243,7 +243,7 @@ function 渲染我的页面() {
 }
 
 // ===== 检查更新 =====
-const 当前版本 = '1.0.3';
+const 当前版本 = '1.0.4';
 
 /** 检查是否有新版本 */
 async function 检查更新() {
@@ -265,17 +265,31 @@ async function 检查更新() {
 
     if (线上版本 !== 当前版本) {
       // 有新版本
-      if (confirm(`发现新版本 v${线上版本}！\n\n${更新说明}\n\n是否立即更新？`)) {
-        // 清除缓存并重新加载
+      显示Toast('发现新版本 v' + 线上版本 + '，正在更新...');
+      
+      // 清除所有缓存
+      try {
         if ('caches' in window) {
           const 缓存列表 = await caches.keys();
           await Promise.all(缓存列表.map(name => caches.delete(name)));
         }
-        显示Toast('正在更新...');
-        setTimeout(() => {
-          location.reload(true);
-        }, 1500);
-      }
+      } catch(e) { console.log('清除缓存失败:', e); }
+
+      // 清除localStorage中的旧资源缓存（如果有）
+      try {
+        // 删除service worker缓存
+        if (navigator.serviceWorker) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let reg of registrations) {
+            await reg.unregister();
+          }
+        }
+      } catch(e) { console.log('清除SW失败:', e); }
+
+      // 强制刷新：用新URL避免缓存
+      setTimeout(() => {
+        window.location.href = window.location.href.split('?')[0] + '?v=' + 线上版本 + '&t=' + Date.now();
+      }, 1500);
     } else {
       显示Toast('当前已是最新版本 v' + 当前版本);
     }
