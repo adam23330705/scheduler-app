@@ -240,6 +240,9 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
     if (!response.ok) {
       const 错误文本 = await response.text();
       console.error('DeepSeek API错误:', response.status, 错误文本);
+      if (response.status === 402) {
+        return '⚠️ DeepSeek余额不足，请充值后继续对话。在deepseek.com登录后充值即可。';
+      }
       throw new Error(`API错误: ${response.status}`);
     }
 

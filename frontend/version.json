@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "date": "2026-05-23",
-  "changelog": "修复：1.返回键直接退出问题 2.DeepSeek对话连接 3.APP图标 4.新增检查更新功能"
+  "changelog": "修复：1.Android返回键（原生拦截）2.DeepSeek余额不足提示 3.错误处理改进"
 }
