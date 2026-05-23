@@ -134,6 +134,9 @@ async function 进入主界面() {
   // 初始化history state，确保返回键能正确工作
   history.replaceState({ view: '公司' }, '');
 
+  // 初始化Android返回键监听（Capacitor原生方式）
+  初始化返回键监听();
+
   // 启动消息催促
   启动消息催促();
 
@@ -352,38 +355,70 @@ function 获取本月任务() {
   });
 }
 
-// ===== Android返回键拦截 =====
+// ===== Android返回键拦截（Capacitor原生方式）=====
 
-/** 监听popstate事件，拦截Android硬件返回键 */
-window.addEventListener('popstate', function(event) {
-  const 当前 = 应用状态.当前视图;
+/** 初始化返回键监听（Capacitor App插件） */
+function 初始化返回键监听() {
+  // 延迟执行，确保Capacitor已加载
+  setTimeout(() => {
+    const App = window.Capacitor?.Plugins?.App;
+    if (App && typeof App.addListener === 'function') {
+      App.addListener('backButton', function() {
+        const 当前 = 应用状态.当前视图;
 
-  // 在主Tab页（公司/任务/消息/朋友圈/我的）按返回键 → 退出确认
-  if (['公司', '任务', '消息', '朋友圈', '我的'].includes(当前)) {
-    // 再次按返回才退出，避免误触
-    if (应用状态.最近按了返回) {
-      // 真正退出
-      return; // 不阻止，让默认行为关闭APP
+        // 在主Tab页 → 双击退出
+        if (['公司', '任务', '消息', '朋友圈', '我的'].includes(当前)) {
+          if (应用状态.最近按了返回) {
+            // 真正退出APP
+            App.exitApp();
+            return;
+          }
+          应用状态.最近按了返回 = true;
+          显示Toast('再按一次退出应用');
+          setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
+          return;
+        }
+
+        // 在对话视图 → 返回上一个Tab
+        if (当前 === '对话') {
+          返回主界面();
+          return;
+        }
+
+        // 在子视图（番茄钟/统计）→ 回到"我的"
+        if (当前 === '番茄钟' || 当前 === '统计') {
+          切换视图('我的');
+          return;
+        }
+
+        // 其他情况 → 回到公司页
+        切换视图('公司');
+      });
+      console.log('✅ Android返回键监听已注册');
+    } else {
+      console.log('⚠️ Capacitor App插件不可用，返回键使用popstate兜底');
+      // 兜底：用popstate（浏览器/PWA环境）
+      初始化Popstate兜底();
     }
-    应用状态.最近按了返回 = true;
-    显示Toast('再按一次退出应用');
-    history.pushState({ view: 当前 }, ''); // 重新push，防止下次直接退出
-    setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
-    return;
-  }
+  }, 500);
+}
 
-  // 在对话视图按返回 → 回到上一个Tab
-  if (当前 === '对话') {
-    返回主界面();
-    return;
-  }
-
-  // 在子视图（番茄钟/统计）按返回 → 回到"我的"
-  if (当前 === '番茄钟' || 当前 === '统计') {
-    切换视图('我的');
-    return;
-  }
-});
+/** popstate兜底（浏览器/PWA环境） */
+function 初始化Popstate兜底() {
+  window.addEventListener('popstate', function(event) {
+    const 当前 = 应用状态.当前视图;
+    if (['公司', '任务', '消息', '朋友圈', '我的'].includes(当前)) {
+      if (应用状态.最近按了返回) return;
+      应用状态.最近按了返回 = true;
+      显示Toast('再按一次退出应用');
+      history.pushState({ view: 当前 }, '');
+      setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
+      return;
+    }
+    if (当前 === '对话') { 返回主界面(); return; }
+    if (当前 === '番茄钟' || 当前 === '统计') { 切换视图('我的'); return; }
+  });
+}
 
 // ===== 初始化 =====
 
