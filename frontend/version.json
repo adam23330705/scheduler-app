@@ -1,5 +1,5 @@
 {
-  "version": "1.0.9",
+  "version": "1.0.10",
   "date": "2026-05-24",
-  "changelog": "返回键改用popstate主机制+pushState拦截，重新生成正确性别的lorelei头像"
+  "changelog": "头像改用avataaars风格，修复聊天头部在线状态被名字遮挡"
 }

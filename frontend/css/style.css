@@ -518,14 +518,14 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   flex-shrink:0;
 }
 .返回按钮:active { background:var(--主色深); transform:scale(0.95); color:white; }
-.对话对象信息 { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.对话对象信息 { display:flex; flex-direction:column; align-items:flex-start; gap:2px; flex:1; min-width:0; }
 .角色头像-小 {
   width:36px; height:36px; min-width:36px; border-radius:50%;
   display:flex; align-items:center; justify-content:center; font-size:18px;
   overflow:hidden; flex-shrink:0;
 }
 .角色头像-小 img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
-.对话对象名字 { font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.对话对象名字 { font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
 .对话对象状态 { font-size:11px; color:var(--文字副); white-space:nowrap; }
 
 .对话消息列表 {
