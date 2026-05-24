@@ -1,0 +1,26 @@
+{
+  "name": "我的虚拟公司",
+  "short_name": "虚拟公司",
+  "description": "花蕾传媒 - 你的虚拟公司生活，角色互动、任务管理、竞争排行",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ec4899",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity", "utilities", "entertainment"],
+  "lang": "zh-CN"
+}

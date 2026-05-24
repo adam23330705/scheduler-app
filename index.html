@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#ec4899">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="我的虚拟公司">
+  <title>我的虚拟公司</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=1.0.9">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="页面-登录" class="页面">
+    <div class="登录容器">
+      <div class="登录标题">
+        <div class="应用图标-大">🌸</div>
+        <h1>我的虚拟公司</h1>
+        <p class="副标题">花蕾传媒 · 让工作有趣起来</p>
+      </div>
+      <div class="登录表单" id="表单-登录">
+        <input type="text" id="输入-用户名" placeholder="用户名" autocomplete="username">
+        <input type="password" id="输入-密码" placeholder="密码" autocomplete="current-password">
+        <button class="按钮-主" onclick="执行登录()">登录</button>
+        <p class="切换链接">还没有账号？<span onclick="切换到注册()">立即注册</span></p>
+      </div>
+      <div class="登录表单" id="表单-注册" style="display:none">
+        <input type="text" id="输入-注册用户名" placeholder="设置用户名（3-20位）" autocomplete="username">
+        <input type="password" id="输入-注册密码" placeholder="设置密码（6位以上）" autocomplete="new-password">
+        <input type="password" id="输入-确认密码" placeholder="再次输入密码" autocomplete="new-password">
+        <button class="按钮-主" onclick="执行注册()">注册</button>
+        <p class="切换链接">已有账号？<span onclick="切换到登录()">直接登录</span></p>
+      </div>
+      <div id="登录错误信息" class="错误信息"></div>
+    </div>
+  </div>
+
+  <!-- 主应用页面 -->
+  <div id="页面-主" class="页面" style="display:none">
+    <!-- 顶部栏 -->
+    <header class="顶部栏">
+      <div class="顶部左">
+        <span id="显示-用户名" class="用户名显示"></span>
+      </div>
+      <div class="顶部中">
+        <span id="显示-当前视图标题" class="视图标题">花蕾传媒</span>
+      </div>
+      <div class="顶部右">
+        <button class="图标按钮" onclick="显示添加任务弹窗()" title="添加任务">＋</button>
+      </div>
+    </header>
+
+    <!-- 内容区 -->
+    <main class="内容区">
+
+      <!-- ========== 公司主页 ========== -->
+      <div id="视图-公司" class="视图">
+        <!-- 公司信息头 -->
+        <div class="公司信息头">
+          <div class="公司标志">🌸</div>
+          <div class="公司信息">
+            <h2>花蕾传媒</h2>
+            <p>呼和浩特 · 首席UP主: 郭哥</p>
+          </div>
+        </div>
+
+        <!-- 今日动态 -->
+        <div class="区块标题">
+          <span>📋 今日动态</span>
+          <span class="区块副标题" id="今日动态时间"></span>
+        </div>
+        <div id="今日动态列表" class="动态列表"></div>
+
+        <!-- 公司角色 -->
+        <div class="区块标题"><span>👥 公司成员</span></div>
+        <div id="角色列表" class="角色列表"></div>
+
+        <!-- 竞争排行 -->
+        <div class="区块标题"><span>🏆 UP主排行</span></div>
+        <div id="竞争排行" class="竞争排行"></div>
+      </div>
+
+      <!-- ========== 角色对话页（全屏覆盖） ========== -->
+      <div id="视图-对话" class="视图" style="display:none">
+        <div class="对话头部">
+          <button class="返回按钮" onclick="返回主界面()">← 返回</button>
+          <div class="对话对象信息">
+            <div class="角色头像-小" id="对话对象头像"></div>
+            <div class="对话对象文字区">
+              <div class="对话对象名字" id="对话对象名字"></div>
+              <div class="对话对象状态" id="对话对象状态">在线</div>
+            </div>
+          </div>
+        </div>
+        <div id="对话消息列表" class="对话消息列表"></div>
+        <div class="对话输入区">
+          <input type="text" id="对话输入框" placeholder="说点什么..." onkeydown="if(event.key==='Enter')发送对话消息()">
+          <button class="发送按钮" onclick="发送对话消息()">发送</button>
+        </div>
+      </div>
+
+      <!-- ========== 任务视图（合并日历+任务+KPI） ========== -->
+      <div id="视图-任务" class="视图" style="display:none">
+        <!-- 月度KPI -->
+        <div class="KPI区域">
+          <div class="KPI标题">📊 本月KPI</div>
+          <div class="KPI卡片组">
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度完成">0</span>
+              <span class="KPI标签">已完成</span>
+            </div>
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度未完">0</span>
+              <span class="KPI标签">未完成</span>
+            </div>
+            <div class="KPI卡片">
+              <span class="KPI数字" id="KPI-月度完成率">0%</span>
+              <span class="KPI标签">完成率</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 日历区域（紧凑版） -->
+        <div class="任务日历区">
+          <div class="日历头">
+            <button class="月份切换" onclick="切换月份(-1)">◀</button>
+            <h2 id="当前月份显示">2026年1月</h2>
+            <button class="月份切换" onclick="切换月份(1)">▶</button>
+          </div>
+          <div class="星期头">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div id="日历格子" class="日历格子"></div>
+        </div>
+
+        <!-- 今日任务 -->
+        <div class="今日任务区">
+          <div class="今日标题行">
+            <h3 id="今日任务标题">今日任务</h3>
+            <span class="任务计数" id="今日任务计数">0个</span>
+          </div>
+          <div class="总览筛选">
+            <button class="筛选按钮 活跃" onclick="筛选总览('全部')" id="筛选-全部">全部</button>
+            <button class="筛选按钮" onclick="筛选总览('紧急')" id="筛选-紧急">⚡ 紧急</button>
+            <button class="筛选按钮" onclick="筛选总览('重要')" id="筛选-重要">⭐ 重要</button>
+            <button class="筛选按钮" onclick="筛选总览('普通')" id="筛选-普通">📝 普通</button>
+          </div>
+          <div id="总览任务列表" class="任务列表"></div>
+        </div>
+      </div>
+
+      <!-- ========== 消息 ========== -->
+      <div id="视图-消息" class="视图" style="display:none">
+        <div class="消息页标题">
+          <h2>消息</h2>
+        </div>
+        <div id="消息列表" class="消息列表"></div>
+      </div>
+
+      <!-- ========== 朋友圈 ========== -->
+      <div id="视图-朋友圈" class="视图" style="display:none">
+        <div class="朋友圈头部">
+          <h2>朋友圈</h2>
+          <button class="发朋友圈按钮" onclick="显示发朋友圈框()">✏️ 发朋友圈</button>
+          <div class="朋友圈封面">
+            <div class="封面背景">🌸</div>
+            <div class="封面信息">
+              <span class="封面公司名">花蕾传媒</span>
+              <span class="封面签名">工作使人快乐（不是）</span>
+            </div>
+          </div>
+        </div>
+        <!-- 发朋友圈输入框 -->
+        <div id="发朋友圈框" class="发朋友圈框" style="display:none">
+          <div class="发朋友圈框-头部">
+            <span>发朋友圈</span>
+            <button onclick="隐藏发朋友圈框()">✕</button>
+          </div>
+          <textarea id="发朋友圈输入" placeholder="说点什么..." rows="3"></textarea>
+          <button class="发朋友圈-发布按钮" onclick="发布用户朋友圈()">发布</button>
+        </div>
+        <div id="朋友圈列表" class="朋友圈列表"></div>
+      </div>
+
+      <!-- ========== 我的 ========== -->
+      <div id="视图-我的" class="视图" style="display:none">
+        <div class="我的头像区">
+          <div class="我的头像">👤</div>
+          <div class="我的信息">
+            <h2 id="我的用户名"></h2>
+            <p>首席UP主 · 花蕾传媒</p>
+          </div>
+        </div>
+        <div class="我的统计">
+          <div class="我的统计项">
+            <span class="我的统计数字" id="我的-粉丝数">9.3万</span>
+            <span class="我的统计标签">B站粉丝</span>
+          </div>
+          <div class="我的统计项">
+            <span class="我的统计数字" id="我的-完成率">0%</span>
+            <span class="我的统计标签">本周完成</span>
+          </div>
+          <div class="我的统计项">
+            <span class="我的统计数字" id="我的-番茄数">0</span>
+            <span class="我的统计标签">今日番茄</span>
+          </div>
+        </div>
+        <div class="我的功能列表">
+          <button class="我的功能项" onclick="切换视图('番茄钟')">
+            <span>🍅</span><span>番茄钟</span><span class="功能箭头">›</span>
+          </button>
+          <button class="我的功能项" onclick="切换视图('统计')">
+            <span>📊</span><span>统计</span><span class="功能箭头">›</span>
+          </button>
+          <button class="我的功能项" onclick="显示头像自定义()">
+            <span>🎨</span><span>自定义头像</span><span class="功能箭头">›</span>
+          </button>
+          <button class="我的功能项" onclick="检查更新()">
+            <span>🔄</span><span>检查更新</span><span class="功能箭头" id="更新箭头">›</span>
+          </button>
+          <button class="我的功能项" onclick="执行登出()">
+            <span>🚪</span><span>退出登录</span><span class="功能箭头">›</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 番茄钟视图（在"我的"里进入） -->
+      <div id="视图-番茄钟" class="视图" style="display:none">
+        <div class="番茄钟容器">
+          <div class="番茄钟模式">
+            <button class="模式按钮 活跃" onclick="切换番茄模式('专注')" id="模式-专注">专注 25分钟</button>
+            <button class="模式按钮" onclick="切换番茄模式('休息')" id="模式-休息">休息 5分钟</button>
+          </div>
+          <div class="番茄钟圆盘" id="番茄钟圆盘">
+            <svg viewBox="0 0 200 200" class="进度圆">
+              <circle cx="100" cy="100" r="90" class="进度背景"/>
+              <circle cx="100" cy="100" r="90" class="进度前景" id="进度弧线"
+                stroke-dasharray="565.48" stroke-dashoffset="0"/>
+            </svg>
+            <div class="时间显示" id="番茄时间显示">25:00</div>
+          </div>
+          <div class="番茄控制">
+            <button class="番茄按钮" id="番茄开始按钮" onclick="切换番茄钟()">▶ 开始</button>
+            <button class="番茄按钮 次要" onclick="重置番茄钟()">↺ 重置</button>
+          </div>
+          <div class="关联任务区">
+            <p class="关联提示">关联到任务（可选）</p>
+            <select id="关联任务选择" class="任务选择器">
+              <option value="">-- 选择任务 --</option>
+            </select>
+          </div>
+          <div class="番茄统计">
+            <div class="统计项">
+              <span class="统计数字" id="今日番茄数">0</span>
+              <span class="统计标签">今日番茄</span>
+            </div>
+            <div class="统计项">
+              <span class="统计数字" id="今日专注分钟">0</span>
+              <span class="统计标签">专注分钟</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计视图 -->
+      <div id="视图-统计" class="视图" style="display:none">
+        <div class="统计容器">
+          <h3>B站数据</h3>
+          <div id="B站数据区" class="B站数据区">
+            <div class="加载中">加载中...</div>
+          </div>
+          <h3 style="margin-top:24px">本周完成情况</h3>
+          <div class="完成率显示">
+            <div class="大数字" id="完成率数字">0%</div>
+            <p id="完成率说明">本周完成 0 / 0 个任务</p>
+          </div>
+          <div id="周统计图" class="周统计图"></div>
+          <h3 style="margin-top:24px">标签分布</h3>
+          <div id="标签统计" class="标签统计"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 底部导航（5个Tab：公司、任务、消息、朋友圈、我的） -->
+    <nav class="底部导航">
+      <button class="导航按钮 活跃" onclick="切换视图('公司')" id="导航-公司">
+        <span class="导航图标">🏢</span>
+        <span class="导航标签">公司</span>
+      </button>
+      <button class="导航按钮" onclick="切换视图('任务')" id="导航-任务">
+        <span class="导航图标">📋</span>
+        <span class="导航标签">任务</span>
+      </button>
+      <button class="导航按钮" onclick="切换视图('消息')" id="导航-消息">
+        <span class="导航图标">💬</span>
+        <span class="导航标签">消息</span>
+      </button>
+      <button class="导航按钮" onclick="切换视图('朋友圈')" id="导航-朋友圈">
+        <span class="导航图标">🌐</span>
+        <span class="导航标签">朋友圈</span>
+      </button>
+      <button class="导航按钮" onclick="切换视图('我的')" id="导航-我的">
+        <span class="导航图标">👤</span>
+        <span class="导航标签">我的</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- 添加/编辑任务弹窗 -->
+  <div id="弹窗-添加任务" class="弹窗遮罩" style="display:none" onclick="点击遮罩关闭(event)">
+    <div class="弹窗内容">
+      <div class="弹窗标题">
+        <h3 id="弹窗标题文字">添加任务</h3>
+        <button class="关闭按钮" onclick="关闭添加任务弹窗()">✕</button>
+      </div>
+      <div class="弹窗表单">
+        <input type="hidden" id="编辑任务ID">
+        <div class="表单行">
+          <label>任务标题 *</label>
+          <input type="text" id="任务标题" placeholder="输入任务标题..." maxlength="100">
+        </div>
+        <div class="表单行">
+          <label>时间</label>
+          <input type="datetime-local" id="任务时间">
+        </div>
+        <div class="表单行">
+          <label>提醒</label>
+          <select id="提醒时间">
+            <option value="">不提醒</option>
+            <option value="0">准时提醒</option>
+            <option value="5">提前5分钟</option>
+            <option value="15">提前15分钟</option>
+            <option value="30">提前30分钟</option>
+            <option value="60">提前1小时</option>
+          </select>
+        </div>
+        <div class="表单行">
+          <label>优先级</label>
+          <div class="优先级选择">
+            <button class="优先级按钮" onclick="选择优先级('紧急')" id="优先级-紧急">⚡ 紧急</button>
+            <button class="优先级按钮 活跃" onclick="选择优先级('普通')" id="优先级-普通">📝 普通</button>
+            <button class="优先级按钮" onclick="选择优先级('重要')" id="优先级-重要">⭐ 重要</button>
+          </div>
+        </div>
+        <div class="表单行">
+          <label>分类标签</label>
+          <div class="标签输入区">
+            <div id="已选标签" class="已选标签"></div>
+            <div id="预设标签" class="预设标签"></div>
+            <input type="text" id="新标签输入" placeholder="输入新标签，回车添加" maxlength="10">
+          </div>
+        </div>
+        <div class="表单行">
+          <label>重复</label>
+          <select id="重复方式">
+            <option value="none">不重复</option>
+            <option value="daily">每天</option>
+            <option value="weekly">每周</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div id="自定义重复区" class="自定义重复区" style="display:none">
+          <div class="星期选择">
+            <label><input type="checkbox" value="1"> 一</label>
+            <label><input type="checkbox" value="2"> 二</label>
+            <label><input type="checkbox" value="3"> 三</label>
+            <label><input type="checkbox" value="4"> 四</label>
+            <label><input type="checkbox" value="5"> 五</label>
+            <label><input type="checkbox" value="6"> 六</label>
+            <label><input type="checkbox" value="0"> 日</label>
+          </div>
+        </div>
+        <div class="表单行">
+          <label>备注</label>
+          <textarea id="任务备注" placeholder="添加备注..." rows="3" maxlength="500"></textarea>
+        </div>
+        <button class="按钮-主 全宽" onclick="提交任务()">保存任务</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast提示 -->
+  <div id="toast提示" class="toast"></div>
+
+  <!-- 头像自定义弹窗 -->
+  <div id="弹窗-自定义头像" class="弹窗遮罩" style="display:none">
+    <div class="弹窗内容" style="max-width:400px;">
+      <div class="弹窗标题">
+        <h3>自定义角色头像</h3>
+        <button class="关闭按钮" onclick="隐藏头像自定义()">✕</button>
+      </div>
+      <div class="头像自定义列表" id="头像自定义列表"></div>
+      <div style="padding:12px; text-align:center; font-size:12px; color:var(--文字副);">
+        提示：选择图片后会自动保存，刷新后生效
+      </div>
+    </div>
+  </div>
+  <!-- 隐藏的文件上传input -->
+  <input type="file" id="头像上传输入" accept="image/*" style="display:none" onchange="处理头像上传(event)">
+
+  <!-- 脚本 -->
+  <script src="./js/capacitor.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/supabase.min.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/store.js"></script>
+  <script src="./js/bilibili.js"></script>
+  <script src="./js/character.js"></script>
+  <script src="./js/chat.js"></script>
+  <script src="./js/moments.js"></script>
+  <script src="./js/message.js"></script>
+  <script src="./js/calendar.js"></script>
+  <script src="./js/task.js"></script>
+  <script src="./js/pomodoro.js"></script>
+  <script src="./js/stats.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
