@@ -267,7 +267,7 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
       signal: 控制器.signal,
     });
 
-    clearTimeout(超�时定时器);
+    clearTimeout(超时定时器);
 
     if (!response.ok) {
       const 错误文本 = await response.text();
