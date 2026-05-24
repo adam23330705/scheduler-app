@@ -35,8 +35,14 @@ function 打开角色对话(角色名) {
   const 角色 = 角色数据[角色名];
 
   // 更新对话头部
-  document.getElementById('对话对象头像').textContent = 角色.头像emoji;
-  document.getElementById('对话对象头像').style.background = 角色.颜色;
+  const 头像容器 = document.getElementById('对话对象头像');
+  if (角色.头像svg) {
+    头像容器.innerHTML = `<img src="${角色.头像svg}" alt="${角色名}">`;
+    头像容器.style.background = 'transparent';
+  } else {
+    头像容器.textContent = 角色.头像emoji;
+    头像容器.style.background = 角色.颜色;
+  }
   document.getElementById('对话对象名字').textContent = 角色.名字;
   const 心情文字 = 角色.心情 === '开心' ? '心情不错~' : 角色.心情 === '不爽' ? '心情不好' : '在线';
   document.getElementById('对话对象状态').textContent = 心情文字;
@@ -76,6 +82,7 @@ function 渲染对话消息() {
   const 角色 = 角色数据[当前对话角色];
 
   let html = '';
+  const 角色头像HTML = 角色.头像svg ? `<div class="消息头像"><img src="${角色.头像svg}" alt="${当前对话角色}"></div>` : `<div class="消息头像" style="background:${角色.颜色}">${角色.头像emoji}</div>`;
   消息们.forEach(消息 => {
     if (消息.角色 === '我') {
       html += `
@@ -86,7 +93,7 @@ function 渲染对话消息() {
     } else {
       html += `
         <div class="消息 消息-对方">
-          <div class="消息头像" style="background:${角色.颜色}">${角色.头像emoji}</div>
+          ${角色头像HTML}
           <div class="消息气泡 气泡-对方">${消息.内容}</div>
         </div>
       `;
@@ -97,7 +104,7 @@ function 渲染对话消息() {
   if (AI正在回复) {
     html += `
       <div class="消息 消息-对方">
-        <div class="消息头像" style="background:${角色.颜色}">${角色.头像emoji}</div>
+        ${角色头像HTML}
         <div class="消息气泡 气泡-对方 输入中">对方正在输入...</div>
       </div>
     `;

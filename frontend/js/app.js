@@ -243,7 +243,7 @@ function 渲染我的页面() {
 }
 
 // ===== 检查更新 =====
-const 当前版本 = '1.0.6';
+const 当前版本 = '1.0.7';
 
 /** 检查是否有新版本 */
 async function 检查更新() {
@@ -366,41 +366,60 @@ function 获取本月任务() {
   });
 }
 
-// ===== Android返回键处理（由MainActivity.java的onBackPressed调用）=====
+// ===== Android返回键处理 =====
 
-/** 处理Android硬件返回键（原生层直接调用） */
+/** 处理返回逻辑（所有返回方式统一调用此函数） */
 function 处理返回键() {
   const 当前 = 应用状态.当前视图;
 
   // 在对话视图 → 返回上一个Tab
   if (当前 === '对话') {
     返回主界面();
-    return;
+    return true; // 已处理
   }
 
   // 在子视图（番茄钟/统计）→ 回到"我的"
   if (当前 === '番茄钟' || 当前 === '统计') {
     切换视图('我的');
-    return;
+    return true;
   }
 
   // 在主Tab页 → 双击退出
   if (['公司', '任务', '消息', '朋友圈', '我的'].includes(当前)) {
     if (应用状态.最近按了返回) {
       // 第二次按返回 → 退出APP
-      // Android原生层没有收到preventDefault就会执行默认退出
-      // 我们通过JS主动调用退出
-      if (window.Capacitor?.Plugins?.App?.exitApp) {
-        window.Capacitor.Plugins.App.exitApp();
+      const { App } = window.Capacitor?.Plugins || {};
+      if (App?.exitApp) {
+        App.exitApp();
       }
-      return;
+      return true;
     }
     应用状态.最近按了返回 = true;
     显示Toast('再按一次退出应用');
     setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
-    return;
+    return true; // 拦截第一次，不退出
   }
+
+  return false; // 未处理
 }
+
+// 使用 @capacitor/app 官方插件监听返回键（支持手势导航+物理返回键）
+document.addEventListener('DOMContentLoaded', function() {
+  const 注册返回键 = () => {
+    const { App } = window.Capacitor?.Plugins || {};
+    if (App?.addListener) {
+      App.addListener('backButton', () => {
+        处理返回键();
+      });
+      console.log('[返回键] @capacitor/app backButton 监听已注册');
+    } else {
+      // 插件未就绪，延迟重试
+      console.warn('[返回键] Capacitor App插件未就绪，1秒后重试');
+      setTimeout(注册返回键, 1000);
+    }
+  };
+  注册返回键();
+});
 
 // 同时监听backbutton事件（浏览器/PWA兜底）
 document.addEventListener('backbutton', function(e) {

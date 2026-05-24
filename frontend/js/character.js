@@ -9,6 +9,7 @@ const DEEPSEEK_API_KEY = 'sk-be82a65cc43c4f8082b027662551ec42';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
 // ===== 角色数据 =====
+const 角色头像版本 = Date.now(); // 缓存破坏参数
 const 角色数据 = {
   于总: {
     名字: '于总',
@@ -16,6 +17,7 @@ const 角色数据 = {
     职位: '老板',
     称呼用户: '郭哥',
     头像emoji: '👩‍💼',
+    头像svg: `./avatars/boss.svg?v=${角色头像版本}`,
     心情: '正常',
     口头禅: ['我不管你怎么做，我要看结果', '这个数据你自己看着办吧', '郭哥，又偷懒？'],
     语气描述: '工作严厉，冷嘲热讽，但私下可爱大眼睛',
@@ -47,6 +49,7 @@ const 角色数据 = {
     职位: '主管',
     称呼用户: '郭哥',
     头像emoji: '👩‍💻',
+    头像svg: `./avatars/manager.svg?v=${角色头像版本}`,
     心情: '正常',
     口头禅: ['郭哥，这周KPI还差多少你自己清楚吧', '进度怎么样了？', '不要让我来催你'],
     语气描述: '干练直接，对KPI负责，催进度',
@@ -79,6 +82,7 @@ const 角色数据 = {
     职位: '助理',
     称呼用户: '郭哥',
     头像emoji: '👧',
+    头像svg: `./avatars/assistant.svg?v=${角色头像版本}`,
     心情: '正常',
     口头禅: ['郭哥！该写文案了！', '郭哥别忘了今天还有个视频要发', '郭哥加油鸭~', '郭哥你还没开始吗？'],
     语气描述: '娇小可爱应届生，高频互动，提醒最多',
@@ -111,6 +115,7 @@ const 角色数据 = {
     职位: '人事',
     称呼用户: '郭哥',
     头像emoji: '👩‍🏫',
+    头像svg: `./avatars/hr.svg?v=${角色头像版本}`,
     心情: '正常',
     口头禅: ['郭哥，考勤记录我看了一下...', '团建的事考虑一下？', '你的作息要注意啊'],
     语气描述: '温和专业，偶尔关心',
@@ -143,6 +148,7 @@ const 角色数据 = {
     职位: '剪辑',
     称呼用户: '郭哥',
     头像emoji: '🧑‍🎨',
+    头像svg: `./avatars/editor.svg?v=${角色头像版本}`,
     心情: '正常',
     口头禅: ['郭哥，素材还没给我...', '郭哥我剪完了您看看？', '郭...郭哥，这个能不能再改改'],
     语气描述: '唯唯诺诺应届生，你下属，花生AI拟人',
@@ -398,7 +404,7 @@ function 渲染角色列表() {
     const 心情emoji = 数据.心情 === '开心' ? '😊' : 数据.心情 === '不爽' ? '😤' : '😐';
     html += `
       <div class="角色卡片" onclick="打开角色对话('${名字}')">
-        <div class="角色头像" style="background:${数据.颜色}" onclick="event.stopPropagation();打开角色对话('${名字}')">${数据.头像emoji}</div>
+        <div class="角色头像" onclick="event.stopPropagation();打开角色对话('${名字}')">${数据.头像svg ? `<img src="${数据.头像svg}" alt="${名字}">` : 数据.头像emoji}</div>
         <div class="角色信息">
           <div class="角色名字">${名字} <span class="角色心情">${心情emoji}</span></div>
           <div class="角色职位">${数据.职位}</div>
@@ -478,7 +484,7 @@ function 渲染今日动态() {
     const 角色 = 角色数据[项.角色];
     html += `
       <div class="动态项">
-        <div class="动态头像" style="background:${角色.颜色}" onclick="打开角色对话('${项.角色}')">${角色.头像emoji}</div>
+        <div class="动态头像" onclick="打开角色对话('${项.角色}')">${角色.头像svg ? `<img src="${角色.头像svg}" alt="${项.角色}">` : 角色.头像emoji}</div>
         <div class="动态内容">
           <span class="动态名字">${项.角色}</span>
           <span class="动态文字">${项.内容}</span>
