@@ -501,23 +501,29 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   background:var(--背景色);
 }
 .对话头部 {
-  display:flex; align-items:center; gap:10px;
-  padding:8px 12px;
-  padding-top:calc(var(--安全顶) + 8px);
+  display:flex; align-items:center; gap:8px;
+  padding:calc(var(--安全顶) + 8px) 12px 8px;
+  padding-left:max(12px, env(safe-area-inset-left, 12px));
   background:rgba(30,41,59,0.95);
   border-bottom:1px solid rgba(51,65,85,0.5);
   backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  position:sticky; top:0; z-index:10;
+  position:relative; z-index:10;
   min-height:48px;
+  flex-shrink:0;
 }
 .返回按钮 {
-  display:flex; align-items:center; justify-content:center;
-  padding:6px 10px; border-radius:100px;
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:6px 12px; border-radius:100px;
   background:var(--主色); color:white; font-size:13px; font-weight:700;
   transition:background 0.2s, transform 0.1s;
   white-space:nowrap;
   flex-shrink:0;
   line-height:1;
+  min-width:56px;
+  height:32px;
+  border:none;
+  cursor:pointer;
+  -webkit-appearance:none;
 }
 .返回按钮:active { background:var(--主色深); transform:scale(0.95); color:white; }
 .对话对象信息 { display:flex; flex-direction:row; align-items:center; gap:8px; flex:1; min-width:0; overflow:hidden; }
@@ -730,6 +736,7 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   .内容区, .弹窗遮罩 { max-width:480px; left:50%; transform:translateX(-50%); margin-left:0; }
   .顶部栏, .底部导航 { max-width:480px; left:50%; transform:translateX(-50%); }
   #视图-对话 { max-width:480px; left:50%; transform:translateX(-50%); }
+  .对话头部 { padding-left:max(12px, calc((100vw - 480px)/2 + 12px)); }
 }
 
 /* ===== KPI区域 ===== */
