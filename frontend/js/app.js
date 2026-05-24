@@ -243,8 +243,176 @@ function 渲染我的页面() {
   if (番茄数元素) 番茄数元素.textContent = 应用状态.番茄记录?.length || 0;
 }
 
+// ===== 头像自定义 =====
+
+/** 显示头像自定义弹窗 */
+function 显示头像自定义() {
+  const 弹窗 = document.getElementById('弹窗-自定义头像');
+  if (弹窗) 弹窗.style.display = 'flex';
+  // 暂停消息和朋友圈定时器
+  应用状态.暂停定时任务 = true;
+  渲染头像自定义列表();
+}
+
+/** 隐藏头像自定义弹窗 */
+function 隐藏头像自定义() {
+  const 弹窗 = document.getElementById('弹窗-自定义头像');
+  if (弹窗) 弹窗.style.display = 'none';
+  // 恢复定时任务
+  应用状态.暂停定时任务 = false;
+}
+
+/** 渲染头像自定义列表 */
+function 渲染头像自定义列表() {
+  const 容器 = document.getElementById('头像自定义列表');
+  if (!容器) return;
+
+  let html = '';
+  const 角色顺序 = ['于总', '赵经理', '小陈', '李老师', '小周'];
+  const 自定义头像 = JSON.parse(localStorage.getItem('自定义头像') || '{}');
+
+  for (const 名字 of 角色顺序) {
+    const 数据 = 角色数据[名字];
+    const 自定义 = 自定义头像[名字];
+    const 当前头像 = 自定义 || 数据.头像svg;
+
+    html += `
+      <div class="头像自定义项" style="display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid var(--卡片色2);">
+        <div class="头像自定义预览" style="width:48px; height:48px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--卡片色2); display:flex; align-items:center; justify-content:center;">
+          <img src="${当前头像}" alt="${名字}" style="width:100%; height:100%; object-fit:cover; display:block;">
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:600; font-size:14px;">${名字}</div>
+          <div style="font-size:11px; color:var(--文字副); margin-top:2px;">${数据.职位}</div>
+        </div>
+        <button class="按钮-小" onclick="选择头像文件('${名字}')" style="padding:6px 12px; background:var(--主色); color:white; border:none; border-radius:6px; font-size:12px; cursor:pointer; flex-shrink:0;">选择图片</button>
+        ${自定义 ? `<button class="按钮-小" onclick="重置头像('${名字}')" style="padding:6px 12px; background:var(--危险色); color:white; border:none; border-radius:6px; font-size:12px; cursor:pointer; flex-shrink:0; margin-left:6px;">重置</button>` : ''}
+      </div>
+    `;
+  }
+
+  容器.innerHTML = html;
+}
+
+/** 选择头像文件 */
+function 选择头像文件(角色名) {
+  const 输入 = document.getElementById('头像上传输入');
+  if (!输入) return;
+
+  // 保存当前正在编辑的角色名
+  应用状态.当前上传角色 = 角色名;
+
+  // 触发文件选择
+  输入.click();
+}
+
+/** 处理头像上传 */
+function 处理头像上传(event) {
+  const 文件 = event.target.files[0];
+  if (!文件) return;
+
+  // 验证文件类型
+  if (!文件.type.startsWith('image/')) {
+    显示Toast('请选择图片文件');
+    return;
+  }
+
+  // 验证文件大小（限制2MB）
+  if (文件.size > 2 * 1024 * 1024) {
+    显示Toast('图片不能超过2MB');
+    return;
+  }
+
+  const 角色名 = 应用状态.当前上传角色;
+  if (!角色名) return;
+
+  const 读取器 = new FileReader();
+  读取器.onload = function(e) {
+    const dataUrl = e.target.result;
+
+    // 保存到localStorage
+    保存自定义头像(角色名, dataUrl);
+
+    // 更新角色数据中的头像
+    角色数据[角色名].头像svg = dataUrl;
+
+    // 重新渲染列表
+    渲染头像自定义列表();
+
+    // 如果当前正在和这个角色对话，更新对话头像
+    if (应用状态.当前对话角色 === 角色名) {
+      const 头像元素 = document.getElementById('对话对象头像');
+      if (头像元素) {
+        头像元素.innerHTML = `<img src="${dataUrl}" alt="${角色名}">`;
+      }
+    }
+
+    // 重新渲染角色列表
+    if (typeof 渲染角色列表 === 'function') 渲染角色列表();
+
+    显示Toast(`${角色名}的头像已更新`);
+  };
+
+  读取器.onerror = function() {
+    显示Toast('读取文件失败');
+  };
+
+  读取器.readAsDataURL(文件);
+
+  // 清空input，允许再次选择同一文件
+  event.target.value = '';
+}
+
+/** 保存自定义头像到localStorage */
+function 保存自定义头像(角色名, dataUrl) {
+  const 自定义头像 = JSON.parse(localStorage.getItem('自定义头像') || '{}');
+  自定义头像[角色名] = dataUrl;
+  localStorage.setItem('自定义头像', JSON.stringify(自定义头像));
+}
+
+/** 获取自定义头像 */
+function 获取自定义头像(角色名) {
+  const 自定义头像 = JSON.parse(localStorage.getItem('自定义头像') || '{}');
+  return 自定义头像[角色名] || null;
+}
+
+/** 重置头像为默认 */
+function 重置头像(角色名) {
+  if (!confirm(`确定要重置${角色名}的头像为默认吗？`)) return;
+
+  // 从localStorage删除
+  const 自定义头像 = JSON.parse(localStorage.getItem('自定义头像') || '{}');
+  delete 自定义头像[角色名];
+  localStorage.setItem('自定义头像', JSON.stringify(自定义头像));
+
+  // 恢复默认头像
+  const 默认头像 = {
+    '于总': `./avatars/boss.jpg?v=${角色头像版本}`,
+    '赵经理': `./avatars/manager.jpg?v=${角色头像版本}`,
+    '小陈': `./avatars/assistant.jpg?v=${角色头像版本}`,
+    '李老师': `./avatars/hr.jpg?v=${角色头像版本}`,
+    '小周': `./avatars/editor.jpg?v=${角色头像版本}`,
+  };
+
+  角色数据[角色名].头像svg = 默认头像[角色名];
+
+  // 重新渲染
+  渲染头像自定义列表();
+
+  if (应用状态.当前对话角色 === 角色名) {
+    const 头像元素 = document.getElementById('对话对象头像');
+    if (头像元素) {
+      头像元素.innerHTML = `<img src="${默认头像[角色名]}" alt="${角色名}">`;
+    }
+  }
+
+  if (typeof 渲染角色列表 === 'function') 渲染角色列表();
+
+  显示Toast(`${角色名}的头像已重置为默认`);
+}
+
 // ===== 检查更新 =====
-const 当前版本 = '1.0.13';
+const 当前版本 = '1.0.14';
 
 /** 检查是否有新版本 */
 async function 检查更新() {

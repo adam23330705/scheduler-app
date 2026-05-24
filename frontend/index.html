@@ -215,6 +215,9 @@
           <button class="我的功能项" onclick="切换视图('统计')">
             <span>📊</span><span>统计</span><span class="功能箭头">›</span>
           </button>
+          <button class="我的功能项" onclick="显示头像自定义()">
+            <span>🎨</span><span>自定义头像</span><span class="功能箭头">›</span>
+          </button>
           <button class="我的功能项" onclick="检查更新()">
             <span>🔄</span><span>检查更新</span><span class="功能箭头" id="更新箭头">›</span>
           </button>
@@ -382,6 +385,22 @@
 
   <!-- Toast提示 -->
   <div id="toast提示" class="toast"></div>
+
+  <!-- 头像自定义弹窗 -->
+  <div id="弹窗-自定义头像" class="弹窗遮罩" style="display:none">
+    <div class="弹窗内容" style="max-width:400px;">
+      <div class="弹窗标题">
+        <h3>自定义角色头像</h3>
+        <button class="关闭按钮" onclick="隐藏头像自定义()">✕</button>
+      </div>
+      <div class="头像自定义列表" id="头像自定义列表"></div>
+      <div style="padding:12px; text-align:center; font-size:12px; color:var(--文字副);">
+        提示：选择图片后会自动保存，刷新后生效
+      </div>
+    </div>
+  </div>
+  <!-- 隐藏的文件上传input -->
+  <input type="file" id="头像上传输入" accept="image/*" style="display:none" onchange="处理头像上传(event)">
 
   <!-- 脚本 -->
   <script src="./js/capacitor.js"></script>

@@ -9,7 +9,7 @@ const DEEPSEEK_API_KEY = 'sk-be82a65cc43c4f8082b027662551ec42';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
 // ===== 角色数据 =====
-const 角色头像版本 = 'v1.0.13'; // 缓存破坏参数
+const 角色头像版本 = 'v1.0.14'; // 缓存破坏参数
 const 角色数据 = {
   于总: {
     名字: '于总',
@@ -595,3 +595,18 @@ const 竞争对手人设 = {
   '瑞画散国': { 职位: '三国UP', 风格: '专注于三国，画功不错', emoji: '🏅' },
   '刮籽加可勒': { 职位: '小UP', 风格: '新人努力中，偶尔蹭热度', emoji: '📜' },
 };
+
+// ===== 应用自定义头像（从localStorage加载） =====
+(function 应用自定义头像() {
+  try {
+    const 自定义头像 = JSON.parse(localStorage.getItem('自定义头像') || '{}');
+    for (const [名字, url] of Object.entries(自定义头像)) {
+      if (角色数据[名字]) {
+        角色数据[名字].头像svg = url;
+        console.log(`已加载${名字}的自定义头像`);
+      }
+    }
+  } catch(e) {
+    console.log('加载自定义头像失败:', e.message);
+  }
+})();
