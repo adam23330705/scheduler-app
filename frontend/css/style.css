@@ -501,33 +501,35 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   background:var(--背景色);
 }
 .对话头部 {
-  display:flex; align-items:center; gap:12px;
-  padding:calc(var(--安全顶) + 12px) 16px 12px;
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px;
+  padding-top:calc(var(--安全顶) + 8px);
   background:rgba(30,41,59,0.95);
   border-bottom:1px solid rgba(51,65,85,0.5);
   backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  position:relative;
-  min-height:56px;
+  position:sticky; top:0; z-index:10;
+  min-height:48px;
 }
 .返回按钮 {
-  display:flex; align-items:center; justify-content:center; gap:4px;
-  padding:8px 12px; border-radius:100px;
-  background:var(--主色); color:white; font-size:14px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  padding:6px 10px; border-radius:100px;
+  background:var(--主色); color:white; font-size:13px; font-weight:700;
   transition:background 0.2s, transform 0.1s;
   white-space:nowrap;
   flex-shrink:0;
+  line-height:1;
 }
 .返回按钮:active { background:var(--主色深); transform:scale(0.95); color:white; }
-.对话对象信息 { display:flex; flex-direction:row; align-items:center; gap:10px; flex:1; min-width:0; overflow:hidden; }
+.对话对象信息 { display:flex; flex-direction:row; align-items:center; gap:8px; flex:1; min-width:0; overflow:hidden; }
 .角色头像-小 {
-  width:36px; height:36px; min-width:36px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center; font-size:18px;
+  width:32px; height:32px; min-width:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
   overflow:hidden; flex-shrink:0;
 }
 .角色头像-小 img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
-.对话对象文字区 { display:flex; flex-direction:column; gap:1px; min-width:0; overflow:hidden; }
-.对话对象名字 { font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.对话对象状态 { font-size:11px; color:var(--文字副); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.对话对象文字区 { display:flex; flex-direction:column; gap:1px; min-width:0; overflow:hidden; flex:1; }
+.对话对象名字 { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.对话对象状态 { font-size:10px; color:var(--文字副); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .对话消息列表 {
   flex:1; overflow-y:auto; padding:16px;
@@ -583,8 +585,41 @@ body { padding-top:var(--安全顶); padding-bottom:var(--安全底); }
   background:linear-gradient(135deg, #1e293b 0%, #33203a 100%);
   border-radius:0 0 var(--圆角) var(--圆角);
   padding:16px 16px 20px; margin:-16px -16px 16px;
+  position:relative;
 }
 .朋友圈头部 h2 { font-size:20px; font-weight:700; margin-bottom:14px; }
+.发朋友圈按钮 {
+  position:absolute; top:16px; right:16px;
+  padding:6px 14px; border-radius:100px;
+  background:var(--主色); color:white; font-size:13px; font-weight:600;
+  border:none; cursor:pointer;
+  transition:background 0.2s, transform 0.1s;
+}
+.发朋友圈按钮:active { background:var(--主色深); transform:scale(0.95); }
+.发朋友圈框 {
+  background:var(--卡片色); border-radius:var(--圆角);
+  padding:14px; margin-bottom:12px; box-shadow:var(--阴影小);
+  animation:卡片出现 0.3s ease;
+}
+.发朋友圈框-头部 {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:10px; font-weight:600; font-size:15px;
+}
+.发朋友圈框-头部 button {
+  background:none; border:none; color:var(--文字副); font-size:18px; cursor:pointer; padding:4px 8px;
+}
+.发朋友圈框 textarea {
+  width:100%; background:var(--输入色); border:1px solid rgba(51,65,85,0.5);
+  border-radius:var(--圆角小); padding:10px; color:var(--文字色); font-size:14px;
+  resize:none; font-family:inherit;
+}
+.发朋友圈框 textarea:focus { outline:none; border-color:var(--主色); }
+.发朋友圈-发布按钮 {
+  margin-top:10px; width:100%; padding:10px; border-radius:var(--圆角小);
+  background:var(--主色); color:white; font-size:14px; font-weight:600;
+  border:none; cursor:pointer; transition:background 0.2s;
+}
+.发朋友圈-发布按钮:active { background:var(--主色深); }
 .朋友圈封面 { display:flex; align-items:center; gap:14px; }
 .封面背景 {
   width:56px; height:56px; border-radius:var(--圆角小);

@@ -164,6 +164,7 @@
       <div id="视图-朋友圈" class="视图" style="display:none">
         <div class="朋友圈头部">
           <h2>朋友圈</h2>
+          <button class="发朋友圈按钮" onclick="显示发朋友圈框()">✏️ 发朋友圈</button>
           <div class="朋友圈封面">
             <div class="封面背景">🌸</div>
             <div class="封面信息">
@@ -171,6 +172,15 @@
               <span class="封面签名">工作使人快乐（不是）</span>
             </div>
           </div>
+        </div>
+        <!-- 发朋友圈输入框 -->
+        <div id="发朋友圈框" class="发朋友圈框" style="display:none">
+          <div class="发朋友圈框-头部">
+            <span>发朋友圈</span>
+            <button onclick="隐藏发朋友圈框()">✕</button>
+          </div>
+          <textarea id="发朋友圈输入" placeholder="说点什么..." rows="3"></textarea>
+          <button class="发朋友圈-发布按钮" onclick="发布用户朋友圈()">发布</button>
         </div>
         <div id="朋友圈列表" class="朋友圈列表"></div>
       </div>

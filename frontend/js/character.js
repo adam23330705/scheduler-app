@@ -9,7 +9,7 @@ const DEEPSEEK_API_KEY = 'sk-be82a65cc43c4f8082b027662551ec42';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
 // ===== 角色数据 =====
-const 角色头像版本 = 'v1.0.10-realphoto'; // 缓存破坏参数
+const 角色头像版本 = 'v1.0.11-chinese'; // 缓存破坏参数
 const 角色数据 = {
   于总: {
     名字: '于总',
@@ -354,7 +354,7 @@ function 生成本地回复(角色名, 用户输入) {
 
 // ===== 基于任务状态的主动提醒 =====
 
-/** 生成主动提醒消息 */
+/** 生成主动提醒消息 - 高频率版 */
 function 生成主动提醒(角色名) {
   const 今日 = typeof 获取今日任务 === 'function' ? 获取今日任务() : [];
   const 未完成 = 今日.filter(t => !t.completed);
@@ -363,34 +363,71 @@ function 生成主动提醒(角色名) {
   if (角色名 === '小陈') {
     if (未完成.length > 0) {
       const 随机任务 = 未完成[Math.floor(Math.random() * 未完成.length)];
-      return `郭哥！你还有${未完成.length}个任务没做呢！"${随机任务.title}"别忘了哦~`;
+      const 消息池 = [
+        `郭哥！你还有${未完成.length}个任务没做呢！"${随机任务.title}"别忘了哦~`,
+        `郭哥！！"${随机任务.title}"还没做！快快快！🏃`,
+        `郭哥~提醒你一下，"${随机任务.title}"还在等你呢！💪`,
+        `郭哥你不会忘了吧？还有${未完成.length}个任务呢！"${随机任务.title}"快开始！`,
+      ];
+      return 消息池[Math.floor(Math.random() * 消息池.length)];
     }
     if (已完成.length > 0 && 未完成.length === 0) {
       return '郭哥好厉害！今天的任务都做完了！🎉';
     }
-    return '郭哥！该喝水了！💧';
+    const 日常 = ['郭哥！该喝水了！💧', '郭哥！起来活动活动！🤸', '郭哥加油鸭~✨', '郭哥！别发呆了！'];
+    return 日常[Math.floor(Math.random() * 日常.length)];
   }
 
   if (角色名 === '赵经理') {
     if (未完成.length > 3) {
-      return `郭哥，你今天还有${未完成.length}个任务没完成，效率得提一下。`;
+      const 消息池 = [
+        `郭哥，你今天还有${未完成.length}个任务没完成，效率得提一下。`,
+        `${未完成.length}个任务在那等着，你打算拖到什么时候？`,
+        `我提醒你一下，任务进度不乐观。`,
+      ];
+      return 消息池[Math.floor(Math.random() * 消息池.length)];
     }
-    return '进度怎么样了？';
+    if (未完成.length > 0) {
+      return `还有${未完成.length}个任务，别让我来催你。`;
+    }
+    const 日常 = ['进度怎么样了？', '数据看了吗？', '竞品又发新视频了。'];
+    return 日常[Math.floor(Math.random() * 日常.length)];
   }
 
   if (角色名 === '于总') {
     if (未完成.length > 已完成.length) {
-      return '郭哥，你今天完成的比没完成的还少？';
+      const 消息池 = [
+        '郭哥，你今天完成的比没完成的还少？',
+        '效率呢？我看不到效率。',
+        '你想让公司跟你一起摆烂？',
+        '郭哥，我对你今天的表现很不满意。',
+      ];
+      return 消息池[Math.floor(Math.random() * 消息池.length)];
+    }
+    if (未完成.length > 0) {
+      return '还有任务没完成，你自己看着办吧。';
     }
     return null;
   }
 
   if (角色名 === '小周') {
-    return '郭哥...素材还没给我...';
+    const 消息池 = [
+      '郭哥...素材还没给我...',
+      '郭哥，我、我剪完了，您有空看看吗？',
+      '那个...郭哥，转场效果您喜欢哪种？',
+      '郭哥...我不着急的...大概...',
+    ];
+    return 消息池[Math.floor(Math.random() * 消息池.length)];
   }
 
   if (角色名 === '李老师') {
-    return '郭哥，注意作息哦。';
+    const 消息池 = [
+      '郭哥，注意作息哦。',
+      '郭哥，该休息一下了。',
+      '考勤记录我看了一下，注意一下。',
+      '团建活动要报名吗？',
+    ];
+    return 消息池[Math.floor(Math.random() * 消息池.length)];
   }
 
   return null;
