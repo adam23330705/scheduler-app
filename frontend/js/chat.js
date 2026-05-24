@@ -165,6 +165,13 @@ async function 发送对话消息() {
     渲染对话消息();
   } catch (error) {
     AI正在回复 = false;
+    // 兜底：即使获取AI回复完全失败，也给一个本地回复
+    const 兜底回复 = typeof 生成本地回复 === 'function' ? 生成本地回复(当前对话角色, 内容) : '...';
+    对话历史[当前对话角色].push({
+      角色: 当前对话角色,
+      内容: 兜底回复,
+      时间: new Date().toISOString(),
+    });
     保存对话历史();
     渲染对话消息();
     console.error('对话发送失败:', error);

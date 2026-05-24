@@ -248,6 +248,10 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
   messages.push({ role: 'user', content: 用户消息 });
 
   try {
+    // 10秒超时，防止fetch无限挂起导致AI正在回复永远为true
+    const 控制器 = new AbortController();
+    const 超时定时器 = setTimeout(() => 控制器.abort(), 10000);
+
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',
       headers: {
@@ -260,7 +264,10 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
         max_tokens: 200,
         temperature: 0.8,
       }),
+      signal: 控制器.signal,
     });
+
+    clearTimeout(超�时定时器);
 
     if (!response.ok) {
       const 错误文本 = await response.text();
