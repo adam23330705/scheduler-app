@@ -9,7 +9,7 @@ const DEEPSEEK_API_KEY = 'sk-be82a65cc43c4f8082b027662551ec42';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
 // ===== 角色数据 =====
-const 角色头像版本 = 'v1.0.9-gender-fix'; // 缓存破坏参数
+const 角色头像版本 = 'v1.0.9-adventurer'; // 缓存破坏参数
 const 角色数据 = {
   于总: {
     名字: '于总',
