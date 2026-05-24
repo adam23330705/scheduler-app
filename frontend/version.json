@@ -1,5 +1,5 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "date": "2026-05-24",
-  "changelog": "修复返回键（安装@capacitor/app插件），角色头像改用SVG，图标更新（白花青底）"
+  "changelog": "修复返回键（引入capacitor.js运行时），头像区分性别，对话基于任务上下文"
 }

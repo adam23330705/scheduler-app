@@ -205,12 +205,31 @@ async function 获取AI回复(角色名, 用户消息, 对话上下文) {
   const 今日 = typeof 获取今日任务 === 'function' ? 获取今日任务() : [];
   const 未完成 = 今日.filter(t => !t.completed);
   const 已完成 = 今日.filter(t => t.completed);
+  
+  // 获取所有未完成任务（不限今天）
+  const 所有任务 = 应用状态?.任务列表 || [];
+  const 所有未完成 = 所有任务.filter(t => !t.completed);
+  const 所有已完成 = 所有任务.filter(t => t.completed);
+  
+  // 番茄钟状态
+  const 番茄运行中 = typeof 番茄状态 !== 'undefined' && 番茄状态.运行中;
+  const 番茄模式 = 番茄运行中 ? (番茄状态.模式 || '专注') : '未运行';
 
   let 上下文信息 = `当前时间：${new Date().toLocaleString('zh-CN')}\n`;
+  上下文信息 += `\n=== 郭哥的任务状态 ===\n`;
   上下文信息 += `今日任务：共${今日.length}个，已完成${已完成.length}个，未完成${未完成.length}个\n`;
   if (未完成.length > 0) {
-    上下文信息 += `未完成任务：${未完成.map(t => t.title).join('、')}\n`;
+    上下文信息 += `今日未完成：\n${未完成.map(t => `  - ${t.title}${t.due_date ? '（截止:'+t.due_date+'）' : ''}`).join('\n')}\n`;
   }
+  if (已完成.length > 0) {
+    上下文信息 += `今日已完成：${已完成.map(t => t.title).join('、')}\n`;
+  }
+  上下文信息 += `\n全部任务：共${所有任务.length}个，未完成${所有未完成.length}个，已完成${所有已完成.length}个\n`;
+  if (所有未完成.length > 0 && 所有未完成.length <= 10) {
+    上下文信息 += `待办列表：\n${所有未完成.map(t => `  - ${t.title}${t.priority==='urgent'?' ⚡紧急':t.priority==='important'?' ⭐重要':''}${t.due_date ? '（截止:'+t.due_date+'）' : ''}`).join('\n')}\n`;
+  }
+  上下文信息 += `\n番茄钟：${番茄运行中 ? '正在'+番茄模式 : '未运行'}\n`;
+  上下文信息 += `\n请根据上述任务状态来和郭哥对话。如果他有未完成的紧急任务，要催他；如果他在专注模式，不要打扰太多次。`;
 
   messages.push({ role: 'system', content: `当前状态信息：\n${上下文信息}` });
 
