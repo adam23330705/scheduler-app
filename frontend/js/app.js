@@ -132,7 +132,10 @@ async function 进入主界面() {
   切换视图('公司');
 
   // 初始化history state，确保返回键能正确工作
+  // 替换当前history entry（不清空之前的，防止后退到登录页）
   history.replaceState({ view: '公司' }, '');
+  // 再push一个，确保有至少2个history entry可供popstate拦截
+  history.pushState({ view: '公司' }, '');
 
   // 启动消息催促
   启动消息催促();
@@ -153,14 +156,9 @@ function 切换视图(视图名) {
   if (视图名 === '对话') {
     document.querySelectorAll('.视图').forEach(v => v.style.display = 'none');
     document.getElementById('视图-对话').style.display = 'flex';
-    // push历史状态，拦截Android返回键
+    // push历史状态，让返回键能拦截
     history.pushState({ view: '对话' }, '');
     return;
-  }
-
-  // 子视图（番茄钟、统计）也需要拦截返回键
-  if (视图名 === '番茄钟' || 视图名 === '统计') {
-    history.pushState({ view: 视图名 }, '');
   }
 
   // 隐藏所有视图
@@ -189,6 +187,9 @@ function 切换视图(视图名) {
     '统计': '统计',
   };
   document.getElementById('显示-当前视图标题').textContent = 标题映射[视图名] || '';
+
+  // ★ 关键：每次视图切换都pushState，确保popstate能拦截返回键
+  history.pushState({ view: 视图名 }, '');
 
   // 渲染当前视图内容
   渲染当前视图();
@@ -243,7 +244,7 @@ function 渲染我的页面() {
 }
 
 // ===== 检查更新 =====
-const 当前版本 = '1.0.8';
+const 当前版本 = '1.0.9';
 
 /** 检查是否有新版本 */
 async function 检查更新() {
@@ -367,6 +368,8 @@ function 获取本月任务() {
 }
 
 // ===== Android返回键处理 =====
+// 核心思路：用popstate作为主要拦截机制（浏览器原生，不依赖Capacitor bridge）
+// Capacitor backButton作为备用
 
 /** 处理返回逻辑（所有返回方式统一调用此函数） */
 function 处理返回键() {
@@ -375,7 +378,7 @@ function 处理返回键() {
   // 在对话视图 → 返回上一个Tab
   if (当前 === '对话') {
     返回主界面();
-    return true; // 已处理
+    return true;
   }
 
   // 在子视图（番茄钟/统计）→ 回到"我的"
@@ -397,35 +400,45 @@ function 处理返回键() {
     应用状态.最近按了返回 = true;
     显示Toast('再按一次退出应用');
     setTimeout(() => { 应用状态.最近按了返回 = false; }, 2000);
-    return true; // 拦截第一次，不退出
+    return true;
   }
 
-  return false; // 未处理
+  return false;
 }
 
-// 使用 @capacitor/app 官方插件监听返回键（支持手势导航+物理返回键）
+// ===== 主机制：popstate监听（浏览器原生，最可靠） =====
+// 当Android返回键/手势触发时，WebView会先触发popstate（如果有history）
+// 我们在popstate中把state推回去，阻止浏览器默认的后退行为，然后自行处理导航
+window.addEventListener('popstate', function(e) {
+  console.log('[返回键] popstate触发, 当前视图:', 应用状态.当前视图);
+
+  // 核心：把history state推回去，阻止浏览器继续后退
+  // 这样WebView永远不会真正"后退"，所有导航由我们自己控制
+  history.pushState({ view: 应用状态.当前视图 }, '');
+
+  // 自行处理返回逻辑
+  处理返回键();
+});
+
+// ===== 备用机制：Capacitor backButton监听 =====
+// 如果Capacitor bridge正常工作，backButton事件会先于popstate触发
 document.addEventListener('DOMContentLoaded', function() {
   const 注册返回键 = () => {
     const { App } = window.Capacitor?.Plugins || {};
     if (App?.addListener) {
       App.addListener('backButton', () => {
+        console.log('[返回键] Capacitor backButton触发');
         处理返回键();
       });
       console.log('[返回键] @capacitor/app backButton 监听已注册');
     } else {
-      // 插件未就绪，延迟重试
-      console.warn('[返回键] Capacitor App插件未就绪，1秒后重试');
+      // 插件未就绪，延迟重试（但popstate已经兜底，不影响功能）
+      console.warn('[返回键] Capacitor App插件未就绪，1秒后重试（popstate已兜底）');
       setTimeout(注册返回键, 1000);
     }
   };
   注册返回键();
 });
-
-// 同时监听backbutton事件（浏览器/PWA兜底）
-document.addEventListener('backbutton', function(e) {
-  e.preventDefault();
-  处理返回键();
-}, false);
 
 // ===== 初始化 =====
 
