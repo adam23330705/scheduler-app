@@ -1,34 +1,16 @@
 /**
  * Service Worker - PWA离线缓存
- * Supabase版 - API请求走supabase.co不走本地
+ * v1.0.9 - 网络优先策略，确保在线时能获取最新代码
  */
 
-const 缓存名 = 'scheduler-v2';
-const 需缓存文件 = [
-  './',
-  './index.html',
-  './css/style.css',
-  './js/api.js',
-  './js/store.js',
-  './js/日历.js',
-  './js/任务.js',
-  './js/番茄钟.js',
-  './js/统计.js',
-  './js/app.js',
-  './manifest.json',
-];
+const 缓存名 = 'scheduler-v1.0.9';
 
-// ===== 安装：预缓存核心文件 =====
+// ===== 安装：跳过等待，立即激活 =====
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(缓存名).then((cache) => {
-      return cache.addAll(需缓存文件);
-    })
-  );
   self.skipWaiting();
 });
 
-// ===== 激活：清理旧缓存 =====
+// ===== 激活：清理旧缓存，立即接管 =====
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -40,33 +22,42 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// ===== 请求拦截：缓存优先，网络回退 =====
+// ===== 请求拦截：网络优先，缓存回退 =====
+// 在线时优先从网络获取最新资源，离线时回退到缓存
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Supabase API请求不走缓存
-  if (url.hostname.includes('supabase.co') || url.hostname.includes('cdn.jsdelivr.net')) {
+  // Supabase / DeepSeek API请求不走缓存
+  if (url.hostname.includes('supabase.co') || 
+      url.hostname.includes('cdn.jsdelivr.net') ||
+      url.hostname.includes('api.deepseek.com') ||
+      url.hostname.includes('api.bilibili.com')) {
     return;
   }
 
-  // 静态资源：缓存优先
+  // 只拦截GET请求
+  if (event.request.method !== 'GET') return;
+
+  // 静态资源：网络优先，缓存回退
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // 成功的GET请求才缓存
-        if (event.request.method === 'GET' && response.status === 200) {
-          const clone = response.clone();
-          caches.open(缓存名).then((cache) => {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      }).catch(() => {
-        // 网络失败，返回离线页面（仅HTML请求）
+    fetch(event.request).then((response) => {
+      // 网络成功，更新缓存
+      if (response.status === 200) {
+        const clone = response.clone();
+        caches.open(缓存名).then((cache) => {
+          cache.put(event.request, clone);
+        });
+      }
+      return response;
+    }).catch(() => {
+      // 网络失败，回退到缓存
+      return caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        // HTML请求回退到index.html
         if (event.request.headers.get('accept')?.includes('text/html')) {
           return caches.match('./index.html');
         }
+        return new Response('离线', { status: 503 });
       });
     })
   );
@@ -75,9 +66,9 @@ self.addEventListener('fetch', (event) => {
 // ===== 推送通知 =====
 self.addEventListener('push', (event) => {
   const 数据 = event.data?.json() || {};
-  const 标题 = 数据.title || '日程规划';
+  const 标题 = 数据.title || '花蕾传媒';
   const 选项 = {
-    body: 数据.body || '你有一条新提醒',
+    body: 数据.body || '你有一条新消息',
     icon: './icons/icon-192.png',
     badge: './icons/icon-192.png',
     tag: 数据.tag || 'reminder',
